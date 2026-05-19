@@ -1,0 +1,39 @@
+# Зависимости
+node_modules
+.pnp
+.pnp.js
+
+# Сборка
+dist
+dist-ssr
+build
+
+# Кэш Vite и логи
+.vite
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Переменные окружения (ключи, пароли)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Системные файлы (Mac/Windows)
+.DS_Store
+Thumbs.db
+
+# Файлы редакторов кода (чтобы не пушить твои личные настройки VS Code)
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

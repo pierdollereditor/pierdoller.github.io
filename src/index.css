@@ -1,0 +1,83 @@
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=PT+Mono&family=Big+Shoulders+Stencil+Display:wght@400;600;700;800;900&family=Anton&family=Oswald:wght@700&display=swap");
+@import "tailwindcss";
+
+@theme {
+    --font-mono: "PT Mono", monospace;
+    --font-stencil: "Big Shoulders Stencil Display", "Anton", sans-serif;
+    --font-display: "Anton", "Impact", sans-serif;
+    --font-oswald: "Oswald", sans-serif;
+
+    --color-void: #050505;
+    --color-blood: #8b0a1f;
+    --color-blood-dim: #5a0610;
+    --color-bone: #e8e4dc;
+    --color-bone-dim: #6a6660;
+    --color-ash: #0f0d0b;
+}
+
+* {
+    -webkit-font-smoothing: antialiased;
+}
+
+html,
+body {
+    background: #050505;
+    color: #c0bdb3;
+    font-family: "PT Mono", monospace;
+}
+
+html.lenis,
+html.lenis body {
+    height: auto;
+}
+.lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+}
+
+::selection {
+    background: #8b0a1f;
+    color: #e8e4dc;
+}
+::-webkit-scrollbar {
+    width: 0;
+}
+
+@keyframes flicker {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    92% {
+        opacity: 0.96;
+    }
+    94% {
+        opacity: 0.82;
+    }
+    96% {
+        opacity: 1;
+    }
+}
+.flicker {
+    animation: flicker 5s infinite;
+}
+
+.text-stroke {
+    -webkit-text-stroke: 1.5px #8b0a1f;
+    color: transparent;
+}
+
+.vignette::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        ellipse at center,
+        transparent 30%,
+        rgba(0, 0, 0, 0.85) 100%
+    );
+    pointer-events: none;
+}
+
+.bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
