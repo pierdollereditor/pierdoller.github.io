@@ -27,7 +27,10 @@ export default function Footer() {
           <Social href="https://x.com/pierdollerVFX" label="X">
             <path d="M18.244 2H21.5l-7.12 8.137L22 22h-5.956l-4.664-6.104L6.04 22H2.782l7.616-8.703L2 2h6.107l4.216 5.522L18.244 2Zm-1.142 18h1.804L7.128 3.895H5.193L17.102 20Z" />
           </Social>
-          <Social href="https://instagram.com/pierdoller" label="Instagram">
+          <Social
+            href="https://www.instagram.com/pierdoller.editor/"
+            label="Instagram"
+          >
             <path
               fill="none"
               stroke="currentColor"
