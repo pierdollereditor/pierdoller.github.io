@@ -72,7 +72,7 @@ export default function Hero() {
           transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
           className={`uppercase text-[42px] sm:text-[60px] md:text-[90px] lg:text-[110px] leading-[0.92] text-[#C0BDB3] ${
             lang === "ru"
-              ? "font-['Bebas_Neue',_sans-serif] font-normal tracking-normal"
+              ? "font-['Montserrat',_sans-serif] font-black tracking-tight"
               : "font-stencil font-black tracking-tight"
           }`}
         >

@@ -1,4 +1,28 @@
+import { useLanguage } from "../store/useLanguage";
+
+const SOCIAL_LINKS = {
+  en: {
+    instagram: "https://www.instagram.com/markelov_fx_eng",
+    instagramLabel: "Instagram ENG",
+    youtube: "https://www.youtube.com/@MarkelovFX_EN",
+    youtubeLabel: "YouTube ENG",
+    tiktok: "https://www.tiktok.com/@markelov_fx_eng",
+    tiktokLabel: "TikTok ENG",
+  },
+  ru: {
+    instagram: "https://www.instagram.com/markelov_fx_rus",
+    instagramLabel: "Instagram RUS",
+    youtube: "https://www.youtube.com/@MarkelovFX_RUS",
+    youtubeLabel: "YouTube RUS",
+    tiktok: "https://www.tiktok.com/@markelovfx",
+    tiktokLabel: "TikTok RUS",
+  },
+};
+
 export default function Footer() {
+  const { lang } = useLanguage();
+  const social = SOCIAL_LINKS[lang];
+
   return (
     <footer className="relative border-t border-[#C0BDB3]/10 px-5 md:px-10 lg:px-20 py-8 font-mono text-[11px] text-[#6A6660]">
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4 tracking-wider">
@@ -21,16 +45,24 @@ export default function Footer() {
           </a>
         </div>
         <div className="flex gap-3">
-          <Social href="https://t.me/P1ERDOLLER" label="Telegram">
+          <Social href="https://markelov-fx.pro" label="Portfolio website">
+            <path
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              d="M3 12h18 M12 3a14 14 0 0 1 0 18 M12 3a14 14 0 0 0 0 18 M4 7h16 M4 17h16 M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0Z"
+            />
+          </Social>
+          <Social href="https://t.me/MarkelovFX" label="Telegram contact">
             <path d="M11.944 0A12 12 0 1 0 24 12.056A12.013 12.013 0 0 0 11.944 0ZM16.906 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472c-.18 1.898-.962 6.502-1.36 8.627c-.168.9-.499 1.201-.82 1.23c-.696.065-1.225-.46-1.9-.902c-1.056-.693-1.653-1.124-2.678-1.8c-1.185-.78-.417-1.21.258-1.91c.177-.184 3.247-2.977 3.307-3.23c.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345c-.48.33-.913.492-1.302.486c-.428-.008-1.252-.242-1.865-.44c-.752-.245-1.349-.374-1.297-.789c.027-.216.325-.437.893-.663c3.498-1.524 5.83-2.529 6.998-3.014c3.332-1.386 4.025-1.627 4.476-1.635Z" />
           </Social>
-          <Social href="https://x.com/pierdollerVFX" label="X">
+          <Social href="https://t.me/Markelov_FX" label="Telegram channel">
+            <path d="M11.944 0A12 12 0 1 0 24 12.056A12.013 12.013 0 0 0 11.944 0ZM16.906 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472c-.18 1.898-.962 6.502-1.36 8.627c-.168.9-.499 1.201-.82 1.23c-.696.065-1.225-.46-1.9-.902c-1.056-.693-1.653-1.124-2.678-1.8c-1.185-.78-.417-1.21.258-1.91c.177-.184 3.247-2.977 3.307-3.23c.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345c-.48.33-.913.492-1.302.486c-.428-.008-1.252-.242-1.865-.44c-.752-.245-1.349-.374-1.297-.789c.027-.216.325-.437.893-.663c3.498-1.524 5.83-2.529 6.998-3.014c3.332-1.386 4.025-1.627 4.476-1.635Z" />
+          </Social>
+          <Social href="https://x.com/Markelov_FX" label="X">
             <path d="M18.244 2H21.5l-7.12 8.137L22 22h-5.956l-4.664-6.104L6.04 22H2.782l7.616-8.703L2 2h6.107l4.216 5.522L18.244 2Zm-1.142 18h1.804L7.128 3.895H5.193L17.102 20Z" />
           </Social>
-          <Social
-            href="https://www.instagram.com/pierdoller.editor/"
-            label="Instagram"
-          >
+          <Social href={social.instagram} label={social.instagramLabel}>
             <path
               fill="none"
               stroke="currentColor"
@@ -39,11 +71,11 @@ export default function Footer() {
             />
             <circle cx="17.5" cy="6.5" r="1.2" />
           </Social>
-          <Social
-            href="https://www.youtube.com/channel/UCp5XWO1wT_N0yn-WvnORJwg"
-            label="YouTube"
-          >
+          <Social href={social.youtube} label={social.youtubeLabel}>
             <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+          </Social>
+          <Social href={social.tiktok} label={social.tiktokLabel}>
+            <path d="M16.6 5.82a6.2 6.2 0 0 0 3.63 1.16v3.1a9.2 9.2 0 0 1-3.64-.77v5.58a6.04 6.04 0 1 1-6.04-6.04c.42 0 .83.04 1.23.13v3.28a2.93 2.93 0 1 0 1.98 2.77V2h2.84c.15 1.42.91 2.8 2 3.82Z" />
           </Social>
         </div>
       </div>

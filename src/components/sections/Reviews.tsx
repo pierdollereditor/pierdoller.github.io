@@ -96,7 +96,7 @@ export default function Reviews() {
           transition={{ duration: 0.7 }}
           className={`text-[48px] md:text-[72px] uppercase ${
             lang === "ru"
-              ? "font-['Bebas_Neue',_sans-serif] font-normal tracking-normal"
+              ? "font-['Montserrat',_sans-serif] font-black tracking-tight"
               : "font-stencil font-black tracking-tight"
           }`}
         >
@@ -127,7 +127,7 @@ export default function Reviews() {
                   <div
                     className={`text-[18px] uppercase tracking-wide ${
                       lang === "ru"
-                        ? "font-['Bebas_Neue',_sans-serif] font-normal tracking-normal"
+                        ? "font-['Montserrat',_sans-serif] font-black tracking-tight"
                         : "font-stencil font-black"
                     }`}
                   >

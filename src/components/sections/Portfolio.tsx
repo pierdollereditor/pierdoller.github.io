@@ -35,7 +35,7 @@ export default function Portfolio() {
         <h2
           className={`text-[56px] md:text-[100px] uppercase leading-[0.9] text-[#C0BDB3] ${
             lang === "ru"
-              ? "font-['Bebas_Neue',_sans-serif] font-normal tracking-normal"
+              ? "font-['Montserrat',_sans-serif] font-black tracking-tight"
               : "font-stencil font-black tracking-tight"
           }`}
         >
@@ -131,7 +131,7 @@ export default function Portfolio() {
                     <div
                       className={`text-[18px] md:text-[22px] uppercase leading-tight text-[#C0BDB3] group-hover:text-[#8B0A1F] transition-colors truncate ${
                         lang === "ru"
-                          ? "font-['Bebas_Neue',_sans-serif] font-normal tracking-normal"
+                          ? "font-['Montserrat',_sans-serif] font-black tracking-tight"
                           : "font-stencil font-black tracking-tight"
                       }`}
                     >

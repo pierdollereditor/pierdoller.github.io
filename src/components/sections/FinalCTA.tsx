@@ -31,7 +31,7 @@ export default function FinalCTA() {
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
             className={`text-[46px] sm:text-[70px] md:text-[110px] lg:text-[130px] leading-[0.95] md:leading-[0.85] uppercase text-[#8B0A1F] ${
               lang === "ru"
-                ? "font-['Bebas_Neue',_sans-serif] font-normal tracking-normal"
+                ? "font-['Montserrat',_sans-serif] font-black tracking-tight"
                 : "font-stencil font-black tracking-tighter"
             }`}
           >
@@ -57,10 +57,10 @@ export default function FinalCTA() {
             transition={{ duration: 0.7, delay: 0.5 }}
             className="mt-8 md:mt-10 flex flex-wrap gap-3 w-full"
           >
-            <Btn href="https://t.me/P1ERDOLLER" label="Telegram">
+            <Btn href="https://t.me/MarkelovFX" label="Telegram">
               <path d="M11.944 0A12 12 0 1 0 24 12.056A12.013 12.013 0 0 0 11.944 0ZM16.906 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472c-.18 1.898-.962 6.502-1.36 8.627c-.168.9-.499 1.201-.82 1.23c-.696.065-1.225-.46-1.9-.902c-1.056-.693-1.653-1.124-2.678-1.8c-1.185-.78-.417-1.21.258-1.91c.177-.184 3.247-2.977 3.307-3.23c.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345c-.48.33-.913.492-1.302.486c-.428-.008-1.252-.242-1.865-.44c-.752-.245-1.349-.374-1.297-.789c.027-.216.325-.437.893-.663c3.498-1.524 5.83-2.529 6.998-3.014c3.332-1.386 4.025-1.627 4.476-1.635Z" />
             </Btn>
-            <Btn href="https://x.com/pierdollerVFX" label="X / Twitter">
+            <Btn href="https://x.com/Markelov_FX" label="X / Twitter">
               <path d="M18.244 2H21.5l-7.12 8.137L22 22h-5.956l-4.664-6.104L6.04 22H2.782l7.616-8.703L2 2h6.107l4.216 5.522L18.244 2Zm-1.142 18h1.804L7.128 3.895H5.193L17.102 20Z" />
             </Btn>
             <Btn href="mailto:contact@markelov-fx.pro" label="Email">
