@@ -26,7 +26,7 @@ export default function Footer() {
   return (
     <footer className="relative border-t border-[#C0BDB3]/10 px-5 md:px-10 lg:px-20 py-8 font-mono text-[11px] text-[#6A6660]">
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4 tracking-wider">
-        <div>© 2026 P.I.E.R.D.O.L.L.E.R · ALL FRAMES RESERVED</div>
+        <div>© 2026 ALL FRAMES RESERVED</div>
         <div className="flex gap-6">
           <a
             href="#portfolio"

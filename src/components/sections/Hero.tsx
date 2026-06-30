@@ -37,21 +37,7 @@ export default function Hero() {
         style={{ opacity }}
         className="hidden md:block absolute top-24 left-5 md:left-10 z-10 font-mono text-[10px] tracking-[0.3em] text-[#6A6660]"
       >
-        TAPE — N°06.21 / PIERDOLLER
-      </motion.div>
-
-      <motion.div
-        initial={{ y: -40, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 1.2, delay: 0.6 }}
-        className="hidden md:flex absolute right-5 md:right-10 top-32 z-10 flex-col items-end"
-      >
-        <div className="font-stencil font-black text-[#C9A57B]/80 text-[18px] md:text-[26px] tracking-[0.12em] leading-[0.9] whitespace-nowrap">
-          P.I.E.R.D.O.L.L.E.R
-        </div>
-        <div className="mt-1.5 font-mono text-[9px] md:text-[10px] text-[#C9A57B]/40 tracking-widest">
-          documentary · brands · street
-        </div>
+        TAPE — N°06.21
       </motion.div>
 
       <div className="relative z-10 flex flex-col justify-center min-h-screen px-5 md:px-10 lg:px-20 max-w-[1400px]">
