@@ -58,7 +58,7 @@ export default function Hero() {
           transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
           className={`uppercase text-[42px] sm:text-[60px] md:text-[90px] lg:text-[110px] leading-[0.92] text-[#C0BDB3] ${
             lang === "ru"
-              ? "font-[var(--font-cyrillic-display)] font-normal tracking-normal"
+              ? "font-[var(--font-cyrillic-display)] font-bold tracking-normal"
               : "font-stencil font-black tracking-tight"
           }`}
         >

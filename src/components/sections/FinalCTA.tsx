@@ -42,7 +42,7 @@ export default function FinalCTA() {
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
             className={`text-[46px] sm:text-[70px] md:text-[110px] lg:text-[130px] leading-[0.95] md:leading-[0.85] uppercase text-[#8B0A1F] ${
               lang === "ru"
-                ? "font-[var(--font-cyrillic-display)] font-normal tracking-normal"
+                ? "font-[var(--font-cyrillic-display)] font-bold tracking-normal"
                 : "font-stencil font-black tracking-tighter"
             }`}
           >

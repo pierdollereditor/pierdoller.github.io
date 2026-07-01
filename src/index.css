@@ -1,6 +1,17 @@
 @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=PT+Mono&family=Big+Shoulders+Stencil+Display:wght@400;600;700;800;900&family=Anton&family=Oswald:wght@700&display=swap");
 @import "tailwindcss";
 
+@font-face {
+    font-family: "Bebas Neue Cyrillic";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src:
+        local("Bebas Neue Cyrillic"),
+        url("https://fonts.cdnfonts.com/s/14902/BebasNeue%20Bold.woff")
+            format("woff");
+}
+
 @theme {
     --font-mono: "PT Mono", monospace;
     --font-stencil: "Big Shoulders Stencil Display", "Anton", sans-serif;

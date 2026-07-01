@@ -51,7 +51,7 @@ export default function Manifesto() {
           <h2
             className={`text-[46px] md:text-[88px] uppercase leading-[0.9] text-[#C0BDB3] ${
               lang === "ru"
-                ? "font-[var(--font-cyrillic-display)] font-normal tracking-normal"
+                ? "font-[var(--font-cyrillic-display)] font-bold tracking-normal"
                 : "font-stencil font-black tracking-tight"
             }`}
           >
