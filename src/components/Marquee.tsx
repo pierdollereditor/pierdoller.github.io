@@ -14,16 +14,16 @@ export default function Marquee({
 
   const styles =
     variant === "caution"
-      ? "bg-[#F5C518] text-black border-y-4 border-black"
+      ? "bg-[#F5C518] text-black border-y-2 border-black"
       : variant === "blood"
         ? "bg-[#8B0A1F] text-[#E8E4DC] border-y border-black/30"
         : "bg-transparent text-[#C0BDB3]/30 border-y border-[#C0BDB3]/10";
 
   return (
     <div
-      className={`section-join relative w-full overflow-hidden py-2.5 md:py-3 ${styles}`}
+      className={`section-join relative w-full overflow-hidden py-2 md:py-2.5 ${styles}`}
       style={{
-        transform: "rotate(-2deg) scale(1.05)",
+        transform: "rotate(-1.35deg) scale(1.04)",
         transformOrigin: "center",
       }}
     >
@@ -39,7 +39,7 @@ export default function Marquee({
       )}
 
       <motion.div
-        className="flex whitespace-nowrap font-mono text-[11px] md:text-[13px] font-black tracking-[0.25em] uppercase relative z-10"
+        className="flex whitespace-nowrap font-mono text-[10px] md:text-[12px] font-black tracking-[0.25em] uppercase relative z-10"
         animate={{ x: ["0%", "-50%"] }}
         transition={{ duration: speed, repeat: Infinity, ease: "linear" }}
       >

@@ -10,28 +10,38 @@ export default function FinalCTA() {
   return (
     <section
       id="contact"
-      className="relative pt-32 pb-20 md:py-36 px-5 md:px-10 lg:px-20 overflow-hidden cinematic-bg"
+      className="relative min-h-screen pt-32 pb-20 md:py-36 px-5 md:px-10 lg:px-20 overflow-hidden cinematic-bg flex items-center"
       style={
         {
           "--section-bg": "url('/images/bg-contact.webp')",
+          "--section-bg-position": "center right",
+          "--section-red-x": "22%",
+          "--section-red-y": "54%",
+          "--section-red-opacity": "0.08",
+          "--section-red-size": "28%",
+          "--section-left-dark": "0.36",
+          "--section-mid-dark": "0.12",
+          "--section-right-dark": "0.48",
+          "--section-top-dark": "0.84",
+          "--section-center-dark": "0.08",
+          "--section-bottom-dark": "0.72",
         } as CSSProperties
       }
     >
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(139,10,31,0.18)_0%,transparent_60%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/25 via-transparent to-[#050505]/15 pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto relative z-10">
-        {/* CRT — теперь рендерится ПЕРВЫМ и лежит на z-0, чтобы не перекрывать клики */}
+      <div className="max-w-7xl mx-auto relative z-10 w-full">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, scale: 0.92, x: 40 }}
+          whileInView={{ opacity: 1, scale: 1, x: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 1.2, delay: 0.4 }}
-          className="hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 w-[46%] h-[700px] pointer-events-none z-0 [&_canvas]:pointer-events-none"
+          transition={{ duration: 1.1, delay: 0.25 }}
+          className="hidden lg:block absolute right-[-2%] top-[48%] -translate-y-1/2 w-[54%] h-[820px] pointer-events-none z-10 [&_canvas]:pointer-events-none"
         >
           <CRTGLB className="w-full h-full" />
         </motion.div>
 
-        <div className="lg:max-w-[58%] w-full relative z-10">
+        <div className="lg:max-w-[54%] w-full relative z-20">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
