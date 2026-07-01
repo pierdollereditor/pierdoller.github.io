@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@900&family=PT+Mono&family=Big+Shoulders+Stencil+Display:wght@400;600;700;800;900&family=Anton&family=Oswald:wght@700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=PT+Mono&family=Big+Shoulders+Stencil+Display:wght@400;600;700;800;900&family=Anton&family=Oswald:wght@700&display=swap");
 @import "tailwindcss";
 
 @theme {
@@ -6,6 +6,8 @@
     --font-stencil: "Big Shoulders Stencil Display", "Anton", sans-serif;
     --font-display: "Anton", "Impact", sans-serif;
     --font-oswald: "Oswald", sans-serif;
+    --font-cyrillic-display:
+        "Bebas Neue Cyrillic", "Bebas Neue", "Oswald", sans-serif;
 
     --color-void: #050505;
     --color-blood: #8b0a1f;
