@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform } from "motion/react";
-import { useRef } from "react";
+import { useRef, type CSSProperties } from "react";
 import { useLanguage, T } from "../../store/useLanguage";
 
 export default function Hero() {
@@ -16,7 +16,8 @@ export default function Hero() {
     <section
       ref={ref}
       id="hero"
-      className="relative min-h-screen overflow-hidden vignette"
+      className="relative min-h-screen overflow-hidden vignette cinematic-bg"
+      style={{ "--section-bg": "url('/images/bg-hero.webp')" } as CSSProperties}
     >
       <div className="absolute inset-0 z-0">
         <video
@@ -24,12 +25,12 @@ export default function Hero() {
           loop
           muted
           playsInline
-          className="w-full h-full object-cover opacity-50 grayscale flicker"
+          className="w-full h-full object-cover opacity-35 grayscale flicker mix-blend-screen"
         >
           <source src="/videos/hero.mp4" type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/40 via-[#050505]/30 to-[#050505]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/30 via-[#050505]/20 to-[#050505]/80" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/85 via-transparent to-[#050505]/45" />
       </div>
 
       {/* Скрыли на мобилках (hidden md:block), чтобы не мешать таймеру REC */}

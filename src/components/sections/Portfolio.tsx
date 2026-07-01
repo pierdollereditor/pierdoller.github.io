@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type CSSProperties } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { WORKS, CATEGORIES, type Category } from "../../data/works";
 import { useLanguage, T } from "../../store/useLanguage";
@@ -52,9 +52,14 @@ export default function Portfolio() {
   return (
     <section
       id="portfolio"
-      className="relative py-20 md:py-28 px-5 md:px-10 lg:px-20"
+      className="relative py-24 md:py-32 px-5 md:px-10 lg:px-20 overflow-hidden cinematic-bg"
+      style={
+        {
+          "--section-bg": "url('/images/bg-portfolio.webp')",
+        } as CSSProperties
+      }
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

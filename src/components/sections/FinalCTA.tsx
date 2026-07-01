@@ -1,3 +1,4 @@
+import { type CSSProperties } from "react";
 import { motion } from "motion/react";
 import CRTGLB from "../three/CRTGLB";
 import { useLanguage, T } from "../../store/useLanguage";
@@ -9,9 +10,14 @@ export default function FinalCTA() {
   return (
     <section
       id="contact"
-      className="relative pt-28 pb-16 md:py-28 px-5 md:px-10 lg:px-20 overflow-hidden"
+      className="relative pt-32 pb-20 md:py-36 px-5 md:px-10 lg:px-20 overflow-hidden cinematic-bg"
+      style={
+        {
+          "--section-bg": "url('/images/bg-contact.webp')",
+        } as CSSProperties
+      }
     >
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(139,10,31,0.12)_0%,transparent_60%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(139,10,31,0.18)_0%,transparent_60%)] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* CRT — теперь рендерится ПЕРВЫМ и лежит на z-0, чтобы не перекрывать клики */}

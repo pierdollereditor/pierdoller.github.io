@@ -21,7 +21,7 @@ export default function Marquee({
 
   return (
     <div
-      className={`relative w-full overflow-hidden py-2.5 md:py-3 ${styles} -my-2`}
+      className={`section-join relative w-full overflow-hidden py-2.5 md:py-3 ${styles}`}
       style={{
         transform: "rotate(-2deg) scale(1.05)",
         transformOrigin: "center",

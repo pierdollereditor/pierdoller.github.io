@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import FolderGLB from "../three/FolderGLB";
 import { useLanguage, T } from "../../store/useLanguage";
 
@@ -10,10 +10,15 @@ export default function Manifesto() {
   return (
     <section
       id="manifesto"
-      className="relative py-16 md:py-28 px-5 md:px-10 lg:px-20 overflow-hidden"
+      className="relative py-24 md:py-36 px-5 md:px-10 lg:px-20 overflow-hidden cinematic-bg"
+      style={
+        {
+          "--section-bg": "url('/images/bg-approach.webp')",
+        } as CSSProperties
+      }
     >
       {/* Заменили grid на flex, чтобы жестко зафиксировать ширину на мобилках */}
-      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12 items-center">
+      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12 items-center relative z-10">
         {/* 3D-модель: hidden lg:block скрывает её на всех экранах меньше 1024px */}
         <motion.div
           initial={{ opacity: 0, x: -40 }}

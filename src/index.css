@@ -79,6 +79,60 @@ html.lenis body {
     color: transparent;
 }
 
+.cinematic-bg {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    isolation: isolate;
+}
+
+.cinematic-bg::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background: var(--section-bg) center / cover no-repeat;
+}
+
+.cinematic-bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(
+            circle at 28% 42%,
+            rgba(139, 10, 31, 0.16),
+            transparent 34%
+        ),
+        linear-gradient(
+            90deg,
+            rgba(5, 5, 5, 0.78),
+            rgba(5, 5, 5, 0.36) 48%,
+            rgba(5, 5, 5, 0.82)
+        ),
+        linear-gradient(
+            180deg,
+            rgba(5, 5, 5, 0.78),
+            rgba(5, 5, 5, 0.18) 42%,
+            rgba(5, 5, 5, 0.88)
+        );
+}
+
+.section-join {
+    position: relative;
+    z-index: 30;
+    margin-block: -18px;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+}
+
+@media (max-width: 768px) {
+    .cinematic-bg::before {
+        background-position: center;
+    }
+}
+
 .vignette::after {
     content: "";
     position: absolute;
