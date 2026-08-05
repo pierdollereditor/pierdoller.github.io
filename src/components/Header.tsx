@@ -72,7 +72,7 @@ export default function Header() {
           </div>
 
           <a
-            href="https://t.me/VFX_AV1"
+            href="https://t.me/SVT_AV1"
             target="_blank"
             rel="noreferrer"
             className="border border-[#C0BDB3]/40 hover:border-[#8B0A1F] hover:text-[#8B0A1F] px-4 py-2 font-mono text-[10px] md:text-[11px] tracking-[0.25em] uppercase transition-colors"
