@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform } from "motion/react";
-import { useLanguage, T } from "../store/useLanguage";
+import { CONTENT } from "../data/content";
 import { SOCIAL_LINKS } from "../data/socialLinks";
 
 export default function Header() {
@@ -9,8 +9,8 @@ export default function Header() {
     [0, 100],
     ["rgba(5,5,5,0)", "rgba(5,5,5,0.92)"],
   );
-  const { lang, setLang } = useLanguage();
-  const t = T[lang].nav;
+  const controlsOpacity = useTransform(scrollY, [0, 120], [0, 1]);
+  const t = CONTENT.nav;
 
   return (
     <motion.header
@@ -25,7 +25,7 @@ export default function Header() {
           P.D.
         </a>
 
-        <nav className="hidden md:flex items-center gap-10 font-mono text-[11px] tracking-[0.25em] uppercase">
+        <motion.nav style={{ opacity: controlsOpacity }} className="hidden md:flex items-center gap-10 font-mono text-[11px] tracking-[0.25em] uppercase">
           <a
             href="#portfolio"
             className="text-[#C0BDB3]/70 hover:text-[#8B0A1F] transition-colors"
@@ -44,34 +44,9 @@ export default function Header() {
           >
             {t.contact}
           </a>
-        </nav>
+        </motion.nav>
 
-        <div className="flex items-center gap-3">
-          {/* LANG TOGGLE */}
-          <div className="hidden md:flex items-center border border-[#C0BDB3]/20 text-[10px] font-mono">
-            <button
-              onClick={() => setLang("en")}
-              className={`px-2.5 py-1.5 tracking-widest uppercase transition-colors ${
-                lang === "en"
-                  ? "bg-[#8B0A1F] text-[#E8E4DC]"
-                  : "text-[#C0BDB3]/60 hover:text-[#C0BDB3]"
-              }`}
-            >
-              🇬🇧 EN
-            </button>
-            <div className="w-px h-4 bg-[#C0BDB3]/20" />
-            <button
-              onClick={() => setLang("ru")}
-              className={`px-2.5 py-1.5 tracking-widest uppercase transition-colors ${
-                lang === "ru"
-                  ? "bg-[#8B0A1F] text-[#E8E4DC]"
-                  : "text-[#C0BDB3]/60 hover:text-[#C0BDB3]"
-              }`}
-            >
-              🇷🇺 RU
-            </button>
-          </div>
-
+        <motion.div style={{ opacity: controlsOpacity }} className="flex items-center gap-3">
           <a
             href={SOCIAL_LINKS.telegramContact}
             target="_blank"
@@ -80,7 +55,7 @@ export default function Header() {
           >
             [ {t.hire} ]
           </a>
-        </div>
+        </motion.div>
       </div>
     </motion.header>
   );

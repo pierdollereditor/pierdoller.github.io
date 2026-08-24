@@ -1,21 +1,16 @@
 import { motion } from "motion/react";
 import { useState, type CSSProperties } from "react";
 import FolderGLB from "../three/FolderGLB";
-import { useLanguage, T } from "../../store/useLanguage";
+import { CONTENT } from "../../data/content";
 
 export default function Manifesto() {
-  const { lang } = useLanguage();
-  const t = T[lang].manifesto;
+  const t = CONTENT.manifesto;
 
   return (
     <section
       id="manifesto"
       className="relative py-24 md:py-36 px-5 md:px-10 lg:px-20 overflow-hidden cinematic-bg"
-      style={
-        {
-          "--section-bg": "url('/images/bg-approach.webp')",
-        } as CSSProperties
-      }
+      style={{ "--section-bg": "url('/images/bg-approach.webp')" } as CSSProperties}
     >
       {/* Заменили grid на flex, чтобы жестко зафиксировать ширину на мобилках */}
       <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12 items-center relative z-10">
@@ -25,8 +20,7 @@ export default function Manifesto() {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 1 }}
-          className="hidden lg:block relative h-[700px] w-full lg:w-[45%] shrink-0"
-          style={{ filter: "brightness(0.55) contrast(1.1) saturate(0.7)" }}
+          className="model-stage hidden lg:block relative h-[700px] w-full lg:w-[45%] shrink-0"
         >
           <FolderGLB className="w-full h-full" />
         </motion.div>
@@ -53,13 +47,7 @@ export default function Manifesto() {
 
           <div className="h-px w-full bg-gradient-to-r from-[#8B0A1F]/60 via-[#C0BDB3]/10 to-transparent mb-6" />
 
-          <h2
-            className={`text-[46px] md:text-[88px] uppercase leading-[0.9] text-[#C0BDB3] ${
-              lang === "ru"
-                ? "font-[var(--font-cyrillic-display)] font-bold tracking-normal"
-                : "font-stencil font-black tracking-tight"
-            }`}
-          >
+          <h2 className="text-[46px] md:text-[88px] uppercase leading-[0.9] text-[#C0BDB3] font-stencil font-black tracking-tight">
             <span className="text-[#8B0A1F]">//</span> {t.title}
           </h2>
 

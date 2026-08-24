@@ -1,25 +1,11 @@
-@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=PT+Mono&family=Big+Shoulders+Stencil+Display:wght@400;600;700;800;900&family=Anton&family=Oswald:wght@700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Anton&family=Big+Shoulders+Stencil+Display:wght@400;600;700;800;900&family=Oswald:wght@700&family=PT+Mono&family=Russo+One&family=Silkscreen:wght@400;700&display=swap");
 @import "tailwindcss";
-
-@font-face {
-    font-family: "Bebas Neue Cyrillic";
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src:
-        local("Bebas Neue Cyrillic"),
-        url("https://fonts.cdnfonts.com/s/14902/BebasNeue%20Bold.woff")
-            format("woff");
-}
 
 @theme {
     --font-mono: "PT Mono", monospace;
     --font-stencil: "Big Shoulders Stencil Display", "Anton", sans-serif;
     --font-display: "Anton", "Impact", sans-serif;
     --font-oswald: "Oswald", sans-serif;
-    --font-cyrillic-display:
-        "Bebas Neue Cyrillic", "Bebas Neue", "Oswald", sans-serif;
-
     --color-void: #050505;
     --color-blood: #8b0a1f;
     --color-blood-dim: #5a0610;
@@ -124,8 +110,8 @@ html.lenis body {
 .section-join {
     position: relative;
     z-index: 30;
-    margin-block: -12px;
-    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+    margin-block: 0;
+    box-shadow: 0 0 32px rgba(255, 23, 68, 0.16);
 }
 
 @media (max-width: 768px) {
@@ -148,4 +134,667 @@ html.lenis body {
 
 .bg-noise {
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+.caution-stack.is-caution {
+    z-index: 35;
+}
+
+.caution-stripes,
+.caution-overlap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(45deg, transparent, transparent 14px, #000 14px, #000 28px);
+    opacity: 0.15;
+    pointer-events: none;
+}
+
+.caution-overlap {
+    position: absolute;
+    top: 50%;
+    z-index: 20;
+    height: 27px;
+    width: 108%;
+    overflow: hidden;
+    border-block: 2px solid #000;
+    background: #f5c518;
+    color: #000;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+    font-family: "PT Mono", monospace;
+    font-size: 9px;
+    font-weight: 900;
+    line-height: 23px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.caution-overlap-track {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    width: max-content;
+}
+
+.caution-overlap span {
+    position: relative;
+    z-index: 1;
+}
+
+.caution-overlap-left {
+    left: -4%;
+    transform: translateY(-50%) rotate(-2.8deg);
+}
+
+.caution-overlap-right {
+    right: -4%;
+    transform: translateY(-50%) rotate(2.2deg);
+}
+
+.caution-variant-1 .caution-overlap-left {
+    top: 34%;
+    transform: translateY(-50%) rotate(-1.4deg);
+}
+
+.caution-variant-1 .caution-overlap-right {
+    top: 67%;
+    transform: translateY(-50%) rotate(3.1deg);
+}
+
+.caution-variant-2 .caution-overlap-left {
+    top: 68%;
+    transform: translateY(-50%) rotate(-3.5deg);
+}
+
+.caution-variant-2 .caution-overlap-right {
+    top: 31%;
+    transform: translateY(-50%) rotate(1.15deg);
+}
+
+.hero-reference {
+    background: #050505;
+}
+
+.hero-reference-backdrop {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 56% 45%, rgba(139, 10, 31, 0.1), transparent 25%),
+        linear-gradient(115deg, #050505 0%, #070506 58%, #0b0607 100%);
+}
+
+.hero-reference-backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.014) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.014) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: linear-gradient(90deg, transparent 30%, #000 100%);
+}
+
+.hero-object {
+    z-index: 5;
+    cursor: grab;
+}
+
+.hero-object:active {
+    cursor: grabbing;
+}
+
+.hero-object-label {
+    position: absolute;
+    right: 22px;
+    bottom: 18px;
+    z-index: 1;
+    color: rgba(192, 189, 179, 0.46);
+    font-family: "PT Mono", monospace;
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.hero-dossier {
+    position: absolute;
+    top: 16%;
+    left: clamp(20px, 2.2vw, 44px);
+    z-index: 11;
+    width: min(65vw, 1200px);
+    height: 230px;
+    pointer-events: none;
+}
+
+.hero-dossier-data {
+    position: relative;
+    z-index: 1;
+    width: 290px;
+    padding: 12px 14px 11px;
+    border-top: 1px solid rgba(139, 10, 31, 0.65);
+    border-bottom: 1px solid rgba(192, 189, 179, 0.1);
+    background: rgba(5, 5, 5, 0.48);
+    backdrop-filter: blur(5px);
+    transform: scale(1.333);
+    transform-origin: top left;
+}
+
+.hero-dossier-id {
+    display: block;
+    margin-bottom: 10px;
+    color: #8b0a1f;
+    font-family: "PT Mono", monospace;
+    font-size: 7px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.hero-dossier dl,
+.hero-dossier dd {
+    margin: 0;
+}
+
+.hero-dossier dl {
+    display: grid;
+    gap: 6px;
+}
+
+.hero-dossier dl > div {
+    display: grid;
+    grid-template-columns: 58px 1fr;
+    gap: 10px;
+    font-family: "PT Mono", monospace;
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    line-height: 1.35;
+    text-transform: uppercase;
+}
+
+.hero-dossier dt {
+    color: #6a6660;
+}
+
+.hero-dossier dd {
+    color: rgba(192, 189, 179, 0.76);
+}
+
+.hero-dossier dd i {
+    width: 5px;
+    height: 5px;
+    display: inline-block;
+    margin-right: 5px;
+    background: #6a8b5f;
+    box-shadow: 0 0 8px rgba(106, 139, 95, 0.65);
+}
+
+.hero-dossier-line {
+    position: absolute;
+    top: 16%;
+    left: clamp(20px, 2.2vw, 44px);
+    z-index: 2;
+    width: min(65vw, 1200px);
+    height: 230px;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.hero-dossier-line polyline {
+    fill: none;
+    stroke: rgba(139, 10, 31, 0.58);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+}
+
+.hero-dossier-line circle {
+    fill: #8b0a1f;
+    filter: drop-shadow(0 0 5px rgba(139, 10, 31, 0.8));
+}
+
+.hero-reference-copy {
+    position: absolute;
+    bottom: 3.5%;
+    left: clamp(12px, 1.2vw, 24px);
+    z-index: 10;
+    width: min(43vw, 780px);
+    color: #c0bdb3;
+}
+
+.hero-reference-copy h1 {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    font-family: "Big Shoulders Stencil Display", "Anton", sans-serif;
+    font-size: clamp(48px, 5.6vw, 108px);
+    font-weight: 900;
+    line-height: 0.84;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+    text-shadow: 0 0 8px rgba(139, 10, 31, 0.45), 0 0 28px rgba(139, 10, 31, 0.2);
+}
+
+.hero-reference-copy h1 span:last-child {
+    color: #8b0a1f;
+}
+
+.hero-reference-copy p {
+    margin: 20px 0 0 2px;
+    color: #6a6660;
+    font-family: "PT Mono", monospace;
+    font-size: clamp(10px, 0.72vw, 14px);
+    line-height: 1.65;
+}
+
+.hero-original-status {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0 0 15px 2px;
+    color: #6a6660;
+    font-family: "PT Mono", monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.hero-original-status i {
+    width: 6px;
+    height: 6px;
+    background: #8b0a1f;
+    box-shadow: 0 0 14px #8b0a1f;
+}
+
+.hero-reference-actions {
+    position: absolute;
+    right: clamp(12px, 1.2vw, 24px);
+    bottom: 3.5%;
+    z-index: 12;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.hero-reference-actions a {
+    min-width: clamp(170px, 11.7vw, 224px);
+    min-height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 13px 22px;
+    border: 1px solid rgba(192, 189, 179, 0.3);
+    color: #c0bdb3;
+    font-family: "PT Mono", monospace;
+    font-size: clamp(10px, 0.64vw, 12px);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.hero-reference-actions a:hover {
+    border-color: #8b0a1f;
+    background: #8b0a1f;
+    color: #000;
+}
+
+.model-stage::before {
+    content: "";
+    position: absolute;
+    inset: 16% 5% 10%;
+    border-radius: 50%;
+    background: radial-gradient(
+        ellipse,
+        rgba(139, 10, 31, 0.16),
+        rgba(139, 10, 31, 0.035) 42%,
+        transparent 72%
+    );
+    filter: blur(24px);
+    pointer-events: none;
+}
+
+.model-stage-crt::before {
+    inset: 19% 0 7% 20%;
+    background: radial-gradient(
+        ellipse,
+        rgba(139, 10, 31, 0.2),
+        rgba(100, 111, 123, 0.05) 45%,
+        transparent 72%
+    );
+}
+
+.contact-section {
+    border-top: 1px solid rgba(192, 189, 179, 0.08);
+    border-bottom: 1px solid rgba(192, 189, 179, 0.08);
+}
+
+.contact-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 51% 53%, rgba(139, 10, 31, 0.13), transparent 22%),
+        repeating-linear-gradient(120deg, rgba(255, 255, 255, 0.012) 0 42px, transparent 42px 86px),
+        #050505;
+    pointer-events: none;
+}
+
+.contact-backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 18%, rgba(5, 5, 5, 0.82) 82%);
+}
+
+.contact-backdrop span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: transparent;
+    font-family: "Big Shoulders Stencil Display", "Anton", sans-serif;
+    font-size: clamp(180px, 26vw, 500px);
+    font-weight: 900;
+    line-height: 0.75;
+    letter-spacing: -0.055em;
+    -webkit-text-stroke: 1px rgba(192, 189, 179, 0.055);
+    opacity: 0.48;
+    filter: blur(2.5px);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.contact-title-glow {
+    text-shadow:
+        0 0 9px rgba(139, 10, 31, 0.34),
+        0 0 26px rgba(139, 10, 31, 0.18);
+}
+
+.portfolio-intro {
+    display: grid;
+    grid-template-columns: minmax(300px, 0.8fr) minmax(520px, 1.2fr);
+    align-items: end;
+    gap: clamp(42px, 7vw, 110px);
+}
+
+.portfolio-index {
+    padding-top: 13px;
+    border-top: 1px solid rgba(192, 189, 179, 0.16);
+}
+
+.portfolio-index-copy {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    color: rgba(106, 102, 96, 0.9);
+    font-family: "PT Mono", monospace;
+    font-size: 8px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.portfolio-filters {
+    display: flex;
+    align-items: center;
+    gap: clamp(16px, 2.2vw, 34px);
+    margin-top: 19px;
+}
+
+.portfolio-filter {
+    position: relative;
+    padding: 0 0 9px;
+    border: 0;
+    background: transparent;
+    color: rgba(192, 189, 179, 0.52);
+    font-family: "PT Mono", monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 180ms ease;
+}
+
+.portfolio-filter::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 1px;
+    background: #8b0a1f;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 220ms ease;
+}
+
+.portfolio-filter:hover,
+.portfolio-filter.is-active {
+    color: #c0bdb3;
+}
+
+.portfolio-filter.is-active::after {
+    transform: scaleX(1);
+}
+
+.work-carousel-shell {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+}
+
+.work-carousel-caption {
+    padding-inline: clamp(20px, 5vw, 80px);
+}
+
+.work-carousel-caption b {
+    color: #8b0a1f;
+    font-weight: 400;
+}
+
+.carousel-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.carousel-controls span {
+    margin-right: 5px;
+}
+
+.carousel-controls button {
+    width: 31px;
+    height: 27px;
+    border: 1px solid rgba(192, 189, 179, 0.18);
+    background: rgba(5, 5, 5, 0.48);
+    color: rgba(192, 189, 179, 0.68);
+    cursor: pointer;
+    transition: border-color 180ms ease, color 180ms ease, background 180ms ease;
+}
+
+.carousel-controls button:hover {
+    border-color: #8b0a1f;
+    background: rgba(139, 10, 31, 0.15);
+    color: #e8e4dc;
+}
+
+.work-carousel {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    outline: none;
+    cursor: ew-resize;
+    perspective: 1500px;
+    perspective-origin: center;
+    padding-block: 20px 44px;
+}
+
+.work-carousel::-webkit-scrollbar {
+    display: none;
+}
+
+.work-carousel-card {
+    position: relative;
+    flex: 0 0 clamp(320px, 40vw, 720px);
+    padding-inline: clamp(10px, 1.2vw, 22px);
+    transform-style: preserve-3d;
+    will-change: transform, filter, opacity;
+    backface-visibility: hidden;
+}
+
+.work-carousel-card::before {
+    content: "";
+    position: absolute;
+    inset: 10px clamp(18px, 1.7vw, 30px) 58px;
+    z-index: -1;
+    border: 1px solid rgba(139, 10, 31, 0.48);
+    background: #16070a;
+    transform: translateZ(-26px);
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.72);
+}
+
+.work-carousel-card > div:first-of-type {
+    box-shadow: 0 24px 58px rgba(0, 0, 0, 0.62);
+}
+
+@media (max-width: 900px) {
+    .hero-reference {
+        min-height: 100svh;
+    }
+
+    .hero-object {
+        top: 5%;
+        right: -18%;
+        bottom: 38%;
+        left: 18%;
+    }
+
+    .hero-object-label {
+        display: none;
+    }
+
+    .hero-reference-copy {
+        right: 22px;
+        bottom: 106px;
+        left: 22px;
+        width: auto;
+    }
+
+    .hero-reference-copy h1 {
+        max-width: 680px;
+        font-size: clamp(54px, 9.5vw, 82px);
+    }
+
+    .hero-reference-actions {
+        right: 22px;
+        bottom: 20px;
+        left: 22px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .hero-reference-actions a {
+        min-width: 0;
+        min-height: 48px;
+        padding: 10px 8px;
+        font-size: 8px;
+    }
+
+    .section-join {
+        box-shadow: 0 0 22px rgba(0, 0, 0, 0.45);
+    }
+
+    .contact-section {
+        min-height: 760px;
+    }
+}
+
+@media (max-width: 640px) {
+    .hero-reference {
+        min-height: 760px;
+    }
+
+    .hero-object {
+        top: 4%;
+        right: -48%;
+        bottom: 42%;
+        left: 8%;
+    }
+
+    .hero-reference-copy {
+        right: 16px;
+        bottom: 92px;
+        left: 16px;
+    }
+
+    .hero-reference-copy h1 {
+        font-size: clamp(43px, 13vw, 62px);
+        line-height: 0.86;
+    }
+
+    .hero-reference-copy p {
+        max-width: 310px;
+        margin-top: 12px;
+        font-size: 9px;
+    }
+
+    .hero-original-status {
+        margin-bottom: 10px;
+        font-size: 7px;
+    }
+
+    .hero-reference-actions {
+        right: 12px;
+        bottom: 13px;
+        left: 12px;
+        gap: 5px;
+    }
+
+    .hero-reference-actions a {
+        min-height: 42px;
+        padding-inline: 4px;
+        font-size: 6.5px;
+        letter-spacing: 0.1em;
+    }
+
+    .caution-overlap {
+        height: 21px;
+        font-size: 7px;
+        line-height: 17px;
+    }
+
+    .caution-overlap-right {
+        display: none;
+    }
+
+    .contact-backdrop span {
+        font-size: 46vw;
+    }
+
+    .portfolio-intro {
+        display: block;
+    }
+
+    .portfolio-index {
+        margin-top: 30px;
+    }
+
+    .portfolio-index-copy span:last-child,
+    .carousel-controls span {
+        display: none;
+    }
+
+    .portfolio-filters {
+        flex-wrap: wrap;
+        gap: 15px 22px;
+    }
+
+    .work-carousel-card {
+        flex-basis: 82vw;
+        padding-inline: 8px;
+    }
+
+    .work-carousel {
+        perspective: 1000px;
+        padding-bottom: 42px;
+    }
 }

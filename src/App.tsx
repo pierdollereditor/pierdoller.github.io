@@ -23,18 +23,22 @@ export default function App() {
         <Marquee
           text="EVIDENCE FILE · DO NOT DISTRIBUTE · CASE №06.21"
           variant="caution"
+          speed={72}
+          stackVariant={0}
         />
         <Manifesto />
         <Marquee
           text="CLASSIFIED · NO FUTURE · ARCHIVE ACCESS"
           variant="caution"
-          speed={50}
+          speed={88}
+          stackVariant={1}
         />
         <Portfolio />
         <Marquee
           text="ROUGH CUT · NOT FOR BROADCAST · FINAL TRANSMISSION"
           variant="caution"
-          speed={40}
+          speed={78}
+          stackVariant={2}
         />
         <FinalCTA />
       </main>

@@ -3,11 +3,13 @@ import { motion } from "motion/react";
 export default function Marquee({
   text,
   variant = "blood",
-  speed = 35,
+  speed = 68,
+  stackVariant = 0,
 }: {
   text: string;
   variant?: "blood" | "ghost" | "caution";
   speed?: number;
+  stackVariant?: 0 | 1 | 2;
 }) {
   const phrase = `  ${text}  ★  `;
   const repeated = phrase.repeat(10);
@@ -20,32 +22,41 @@ export default function Marquee({
         : "bg-transparent text-[#C0BDB3]/30 border-y border-[#C0BDB3]/10";
 
   return (
-    <div
-      className={`section-join relative w-full overflow-hidden py-2 md:py-2.5 ${styles}`}
-      style={{
-        transform: "rotate(-1.35deg) scale(1.04)",
-        transformOrigin: "center",
-      }}
-    >
-      {/* Diagonal black stripes for caution feel */}
-      {variant === "caution" && (
-        <div
-          className="absolute inset-0 opacity-[0.15] pointer-events-none"
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(45deg, transparent, transparent 14px, #000 14px, #000 28px)",
-          }}
-        />
-      )}
+    <div className={`section-join caution-stack caution-variant-${stackVariant} relative w-full ${variant === "caution" ? "is-caution" : ""}`}>
+      <div className={`relative w-full overflow-hidden py-2 md:py-2.5 ${styles}`}>
+        {variant === "caution" && <div className="caution-stripes" />}
+        <motion.div
+          className="flex whitespace-nowrap font-mono text-[10px] md:text-[12px] font-black tracking-[0.25em] uppercase relative z-10"
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{ duration: speed, repeat: Infinity, ease: "linear" }}
+        >
+          <span>{repeated}</span>
+          <span>{repeated}</span>
+        </motion.div>
+      </div>
 
-      <motion.div
-        className="flex whitespace-nowrap font-mono text-[10px] md:text-[12px] font-black tracking-[0.25em] uppercase relative z-10"
-        animate={{ x: ["0%", "-50%"] }}
-        transition={{ duration: speed, repeat: Infinity, ease: "linear" }}
-      >
-        <span>{repeated}</span>
-        <span>{repeated}</span>
-      </motion.div>
+      {variant === "caution" && (
+        <>
+          <div className="caution-overlap caution-overlap-left" aria-hidden="true">
+            <motion.div
+              className="caution-overlap-track"
+              animate={{ x: ["-50%", "0%"] }}
+              transition={{ duration: speed * 0.82, repeat: Infinity, ease: "linear" }}
+            >
+              <span>{repeated}</span><span>{repeated}</span>
+            </motion.div>
+          </div>
+          <div className="caution-overlap caution-overlap-right" aria-hidden="true">
+            <motion.div
+              className="caution-overlap-track"
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{ duration: speed * 1.08, repeat: Infinity, ease: "linear" }}
+            >
+              <span>{repeated}</span><span>{repeated}</span>
+            </motion.div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

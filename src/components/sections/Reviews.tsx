@@ -1,8 +1,6 @@
 import { motion } from "motion/react";
-import { useLanguage } from "../../store/useLanguage";
 
 const DATA = {
-  en: {
     label: "// REVIEWS / CASE FILES //",
     title1: "Witness",
     title2: "Statements",
@@ -34,45 +32,10 @@ const DATA = {
         rotate: 4,
       },
     ],
-  },
-  ru: {
-    label: "// ОТЗЫВЫ / АРХИВ ДЕЛ //",
-    title1: "Показания",
-    title2: "Свидетелей",
-    statement: "ЗАЯВЛЕНИЕ",
-    verified: "✓ ПОДТВЕРЖДЕНО",
-    reviews: [
-      {
-        author: "Tourist's Life",
-        role: "Travel YouTube",
-        text: "Удержание выросло в 3 раза. Канал прыгнул с 50к до 200к за ролик.",
-        rotate: -3,
-      },
-      {
-        author: "Cryptomnenie",
-        role: "Crypto YouTube",
-        text: "Подписчики узнают канал по первой секунде. Это уровень.",
-        rotate: 2,
-      },
-      {
-        author: "А. Петров",
-        role: "Документалист",
-        text: "Один из тех, кто слышит ритм истории, а не просто режет таймлайн.",
-        rotate: -2,
-      },
-      {
-        author: "Studio M.",
-        role: "Brand Agency",
-        text: "Сдал три проекта в срок, превзошёл ожидания на каждом.",
-        rotate: 4,
-      },
-    ],
-  },
 };
 
 export default function Reviews() {
-  const { lang } = useLanguage();
-  const t = DATA[lang];
+  const t = DATA;
 
   return (
     <section
@@ -94,11 +57,7 @@ export default function Reviews() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
-          className={`text-[48px] md:text-[72px] uppercase ${
-            lang === "ru"
-              ? "font-[var(--font-cyrillic-display)] font-bold tracking-normal"
-              : "font-stencil font-black tracking-tight"
-          }`}
+          className="text-[48px] md:text-[72px] uppercase font-stencil font-black tracking-tight"
         >
           {t.title1} <span className="text-[#C8102E]">{t.title2}</span>
         </motion.h2>
@@ -124,13 +83,7 @@ export default function Reviews() {
 
               <div className="mt-6 pt-4 border-t border-[#0A0807]/20 flex items-baseline justify-between">
                 <div>
-                  <div
-                    className={`text-[18px] uppercase tracking-wide ${
-                      lang === "ru"
-                        ? "font-[var(--font-cyrillic-display)] font-bold tracking-normal"
-                        : "font-stencil font-black"
-                    }`}
-                  >
+                  <div className="text-[18px] uppercase tracking-wide font-stencil font-black">
                     {r.author}
                   </div>
                   <div className="font-mono text-[10px] text-[#0A0807]/60 uppercase tracking-wider mt-0.5">

@@ -8,7 +8,6 @@ export type Work = {
   year: number;
   duration: string;
   poster: string;
-  videoUrl?: string;
   link?: string;
 };
 
@@ -28,7 +27,6 @@ export const WORKS: Work[] = [
     year: 2026,
     duration: "01:48",
     poster: "/images/showreel.png",
-    videoUrl: "",
   },
   {
     id: "spec-ops",
@@ -38,7 +36,6 @@ export const WORKS: Work[] = [
     year: 2026,
     duration: "24:18",
     poster: "/images/SOTL.png",
-    videoUrl: "",
   },
   {
     id: "kryptomnenie",
@@ -48,7 +45,6 @@ export const WORKS: Work[] = [
     year: 2026,
     duration: "12:34",
     poster: "/images/KRYPTOMNENIE.jpg",
-    videoUrl: "",
   },
   {
     id: "kripto",
@@ -58,7 +54,6 @@ export const WORKS: Work[] = [
     year: 2026,
     duration: "03:20",
     poster: "/images/kripto.png",
-    videoUrl: "",
   },
   {
     id: "dubai",
@@ -68,7 +63,6 @@ export const WORKS: Work[] = [
     year: 2026,
     duration: "04:12",
     poster: "/images/dubai.png",
-    videoUrl: "",
   },
   {
     id: "orcas",
@@ -78,7 +72,6 @@ export const WORKS: Work[] = [
     year: 2026,
     duration: "08:42",
     poster: "/images/vox_orcas.jpg",
-    videoUrl: "",
   },
   {
     id: "pepe",
@@ -88,7 +81,6 @@ export const WORKS: Work[] = [
     year: 2026,
     duration: "18:55",
     poster: "/images/pepe.png",
-    videoUrl: "",
   },
   {
     id: "motion",
@@ -98,7 +90,6 @@ export const WORKS: Work[] = [
     year: 2026,
     duration: "01:20",
     poster: "/images/min.png",
-    videoUrl: "",
   },
   {
     id: "short-form",
@@ -108,7 +99,6 @@ export const WORKS: Work[] = [
     year: 2026,
     duration: "00:58",
     poster: "/images/Short_form.png",
-    videoUrl: "",
   },
   {
     id: "sport",
@@ -118,7 +108,6 @@ export const WORKS: Work[] = [
     year: 2026,
     duration: "00:45",
     poster: "/images/sport-promo.png",
-    videoUrl: "",
   },
   {
     id: "turkan",
@@ -128,6 +117,5 @@ export const WORKS: Work[] = [
     year: 2026,
     duration: "15:20",
     poster: "/images/turkan.jpg",
-    videoUrl: "",
   },
 ];

@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
+import { motion, useScroll, useTransform } from "motion/react";
 
 export default function RecIndicator() {
   const [tc, setTc] = useState("00:00:00");
+  const { scrollY } = useScroll();
+  const opacity = useTransform(scrollY, [0, 120], [0, 1]);
 
   useEffect(() => {
     const start = Date.now();
@@ -16,9 +19,9 @@ export default function RecIndicator() {
   }, []);
 
   return (
-    <div className="fixed top-[68px] right-5 md:right-10 z-30 border border-[#8B0A1F]/60 px-2.5 py-1 font-mono text-[10px] md:text-[11px] tracking-widest text-[#8B0A1F] bg-black/40 backdrop-blur-sm flex items-center gap-2">
+    <motion.div style={{ opacity }} className="fixed top-[68px] right-5 md:right-10 z-30 border border-[#8B0A1F]/60 px-2.5 py-1 font-mono text-[10px] md:text-[11px] tracking-widest text-[#8B0A1F] bg-black/40 backdrop-blur-sm flex items-center gap-2">
       <span className="w-1.5 h-1.5 rounded-full bg-[#8B0A1F] animate-pulse" />
       REC · {tc}
-    </div>
+    </motion.div>
   );
 }

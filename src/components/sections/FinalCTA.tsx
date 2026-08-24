@@ -1,34 +1,19 @@
-import { type CSSProperties } from "react";
 import { motion } from "motion/react";
 import CRTGLB from "../three/CRTGLB";
-import { useLanguage, T } from "../../store/useLanguage";
+import { CONTENT } from "../../data/content";
 import { SOCIAL_LINKS } from "../../data/socialLinks";
 
 export default function FinalCTA() {
-  const { lang } = useLanguage();
-  const t = T[lang].cta;
+  const t = CONTENT.cta;
 
   return (
     <section
       id="contact"
-      className="relative min-h-screen pt-32 pb-20 md:py-36 px-5 md:px-10 lg:px-20 overflow-hidden cinematic-bg flex items-center"
-      style={
-        {
-          "--section-bg": "url('/images/bg-contact.webp')",
-          "--section-bg-position": "center right",
-          "--section-red-x": "22%",
-          "--section-red-y": "54%",
-          "--section-red-opacity": "0.08",
-          "--section-red-size": "28%",
-          "--section-left-dark": "0.36",
-          "--section-mid-dark": "0.12",
-          "--section-right-dark": "0.48",
-          "--section-top-dark": "0.84",
-          "--section-center-dark": "0.08",
-          "--section-bottom-dark": "0.72",
-        } as CSSProperties
-      }
+      className="contact-section relative min-h-screen pt-32 pb-20 md:py-36 px-5 md:px-10 lg:px-20 overflow-hidden cinematic-bg flex items-center"
     >
+      <div className="contact-backdrop" aria-hidden="true">
+        <span>PROJECT</span>
+      </div>
       <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/25 via-transparent to-[#050505]/15 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto relative z-10 w-full">
@@ -37,7 +22,7 @@ export default function FinalCTA() {
           whileInView={{ opacity: 1, scale: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 1.1, delay: 0.25 }}
-          className="hidden lg:block absolute right-[-2%] top-[48%] -translate-y-1/2 w-[54%] h-[820px] pointer-events-none z-10 [&_canvas]:pointer-events-none"
+          className="model-stage model-stage-crt hidden lg:block absolute right-[-2%] top-[48%] -translate-y-1/2 w-[54%] h-[820px] pointer-events-none z-10 [&_canvas]:pointer-events-none"
         >
           <CRTGLB className="w-full h-full" />
         </motion.div>
@@ -57,11 +42,7 @@ export default function FinalCTA() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className={`text-[46px] sm:text-[70px] md:text-[110px] lg:text-[130px] leading-[0.95] md:leading-[0.85] uppercase text-[#8B0A1F] ${
-              lang === "ru"
-                ? "font-[var(--font-cyrillic-display)] font-bold tracking-normal"
-                : "font-stencil font-black tracking-tighter"
-            }`}
+            className="contact-title-glow text-[46px] sm:text-[70px] md:text-[110px] lg:text-[130px] leading-[0.95] md:leading-[0.85] uppercase text-[#8B0A1F] font-stencil font-black tracking-tighter"
           >
             {t.title1}
             <br />

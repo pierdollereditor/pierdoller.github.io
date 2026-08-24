@@ -1,32 +1,16 @@
-import { useState, useEffect, type CSSProperties } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { motion } from "motion/react";
 import { WORKS, CATEGORIES, type Category } from "../../data/works";
-import { useLanguage, T } from "../../store/useLanguage";
+import { CONTENT } from "../../data/content";
 
-function getYouTubeEmbed(url: string): string | null {
-  if (!url) return null;
-  const short = url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
-  if (short)
-    return `https://www.youtube.com/embed/${short[1]}?autoplay=1&rel=0`;
-  const watch = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
-  if (watch)
-    return `https://www.youtube.com/embed/${watch[1]}?autoplay=1&rel=0`;
-  const shorts = url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/);
-  if (shorts)
-    return `https://www.youtube.com/embed/${shorts[1]}?autoplay=1&rel=0`;
-  const embed = url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/);
-  if (embed)
-    return `https://www.youtube.com/embed/${embed[1]}?autoplay=1&rel=0`;
-  return null;
-}
+const CAROUSEL_COPIES = 3;
 
 export default function Portfolio() {
   const [filter, setFilter] = useState<Category>("ALL");
-  const [active, setActive] = useState<(typeof WORKS)[number] | null>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
   const list =
     filter === "ALL" ? WORKS : WORKS.filter((w) => w.category === filter);
-  const { lang } = useLanguage();
-  const t = T[lang].portfolio;
+  const t = CONTENT.portfolio;
 
   const labels: Record<Category, string> = {
     ALL: t.all,
@@ -36,96 +20,201 @@ export default function Portfolio() {
   };
 
   useEffect(() => {
-    if (!active) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setActive(null);
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+    let animationFrame = 0;
+    let velocity = 0;
+
+    const centerCarousel = () => {
+      const firstCard = carousel.querySelector<HTMLElement>(".work-carousel-card");
+      if (!firstCard) return;
+      carousel.scrollLeft =
+        carousel.scrollWidth / CAROUSEL_COPIES -
+        (carousel.clientWidth - firstCard.offsetWidth) / 2;
+      updateCardTransforms();
     };
-    window.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+
+    const keepCarouselLooped = () => {
+      const segmentWidth = carousel.scrollWidth / CAROUSEL_COPIES;
+      if (carousel.scrollLeft < segmentWidth * 0.5) {
+        carousel.scrollLeft += segmentWidth;
+      } else if (carousel.scrollLeft > segmentWidth * 1.5) {
+        carousel.scrollLeft -= segmentWidth;
+      }
+    };
+
+    const updateCardTransforms = () => {
+      const carouselCenter = carousel.clientWidth / 2;
+      carousel.querySelectorAll<HTMLElement>(".work-carousel-card").forEach((card) => {
+        const cardCenter = card.offsetLeft - carousel.scrollLeft + card.offsetWidth / 2;
+        const distance = (cardCenter - carouselCenter) / card.offsetWidth;
+        const absoluteDistance = Math.min(Math.abs(distance), 2.25);
+        const rotation = Math.max(-52, Math.min(52, distance * -42));
+        const depth = absoluteDistance * -190;
+        const verticalOffset = absoluteDistance * 22;
+        const scale = Math.max(0.76, 1 - absoluteDistance * 0.12);
+
+        card.style.transform = `translate3d(0, ${verticalOffset}px, ${depth}px) rotateY(${rotation}deg) scale(${scale})`;
+        card.style.transformOrigin = distance < 0 ? "right center" : "left center";
+        card.style.filter = `blur(${Math.min(3.5, absoluteDistance * 2.1)}px) brightness(${Math.max(0.48, 1 - absoluteDistance * 0.24)})`;
+        card.style.opacity = String(Math.max(0.35, 1 - absoluteDistance * 0.2));
+        card.style.zIndex = String(100 - Math.round(absoluteDistance * 20));
+      });
+    };
+
+    const handleScroll = () => {
+      keepCarouselLooped();
+      updateCardTransforms();
+    };
+
+    const animateScroll = () => {
+      carousel.scrollLeft += velocity;
+      velocity *= 0.9;
+      if (Math.abs(velocity) < 0.08) {
+        velocity = 0;
+        animationFrame = 0;
+        return;
+      }
+      animationFrame = requestAnimationFrame(animateScroll);
+    };
+
+    const startAnimation = () => {
+      if (!animationFrame) animationFrame = requestAnimationFrame(animateScroll);
+    };
+
+    const handleWheel = (event: WheelEvent) => {
+      const isHorizontalGesture = Math.abs(event.deltaX) > Math.abs(event.deltaY);
+      const delta = isHorizontalGesture ? event.deltaX : event.deltaY;
+      if (!delta) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const deltaScale = event.deltaMode === WheelEvent.DOM_DELTA_LINE
+        ? 16
+        : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
+          ? carousel.clientWidth
+          : 1;
+      velocity = Math.max(-70, Math.min(70, velocity + delta * deltaScale * 0.16));
+      startAnimation();
+    };
+
+    const frame = requestAnimationFrame(centerCarousel);
+    const observer = new ResizeObserver(centerCarousel);
+    observer.observe(carousel);
+    carousel.addEventListener("wheel", handleWheel, { passive: false });
+    carousel.addEventListener("scroll", handleScroll, { passive: true });
+
     return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
+      cancelAnimationFrame(frame);
+      cancelAnimationFrame(animationFrame);
+      observer.disconnect();
+      carousel.removeEventListener("wheel", handleWheel);
+      carousel.removeEventListener("scroll", handleScroll);
     };
-  }, [active]);
+  }, [filter]);
+
+  const handleCarouselKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    event.preventDefault();
+    carouselRef.current?.scrollBy({
+      left: (event.key === "ArrowRight" ? 1 : -1) * window.innerWidth * 0.55,
+      behavior: "smooth",
+    });
+  };
+
+  const scrollCarousel = (direction: -1 | 1) => {
+    carouselRef.current?.scrollBy({
+      left: direction * window.innerWidth * 0.42,
+      behavior: "smooth",
+    });
+  };
 
   return (
     <section
       id="portfolio"
       className="relative py-24 md:py-32 px-5 md:px-10 lg:px-20 overflow-hidden cinematic-bg"
-      style={
-        {
-          "--section-bg": "url('/images/bg-portfolio.webp')",
-        } as CSSProperties
-      }
+      style={{ "--section-bg": "url('/images/bg-portfolio.webp')" } as CSSProperties}
     >
       <div className="max-w-7xl mx-auto relative z-10">
+        <div className="portfolio-intro">
+          <div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="font-mono text-[10px] tracking-[0.3em] text-[#8B0A1F] mb-3 uppercase"
+            >
+              B / 02 · {t.label}
+            </motion.div>
+            <h2 className="text-[54px] md:text-[78px] uppercase leading-[0.86] text-[#C0BDB3] font-stencil font-black tracking-tight">
+              {t.title}
+            </h2>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.15 }}
+            className="portfolio-index"
+          >
+            <div className="portfolio-index-copy">
+              <span>Archive index / 2026</span>
+              <span>Editing · Motion · Visual narrative</span>
+            </div>
+            <div className="portfolio-filters" role="group" aria-label="Filter projects">
+              {CATEGORIES.map((category) => {
+                const isActive = filter === category.key;
+                return (
+                  <button
+                    type="button"
+                    key={category.key}
+                    onClick={() => setFilter(category.key)}
+                    className={`portfolio-filter ${isActive ? "is-active" : ""}`}
+                    aria-pressed={isActive}
+                  >
+                    {labels[category.key]}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        </div>
+
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="font-mono text-[11px] tracking-[0.3em] text-[#8B0A1F] mb-3 uppercase"
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.7 }}
+          className="work-carousel-shell mt-12"
         >
-          {t.label}
-        </motion.div>
-
-        <h2
-          className={`text-[56px] md:text-[100px] uppercase leading-[0.9] text-[#C0BDB3] ${
-            lang === "ru"
-              ? "font-[var(--font-cyrillic-display)] font-bold tracking-normal"
-              : "font-stencil font-black tracking-tight"
-          }`}
-        >
-          {t.title}
-        </h2>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-          className="mt-8 flex flex-wrap gap-2"
-        >
-          {CATEGORIES.map((c) => {
-            const isActive = filter === c.key;
-            return (
-              <button
-                key={c.key}
-                onClick={() => setFilter(c.key)}
-                className={`font-mono text-[10px] md:text-[11px] tracking-[0.2em] uppercase px-3 py-2 border transition-all ${
-                  isActive
-                    ? "border-[#8B0A1F] text-[#8B0A1F] bg-[#8B0A1F]/10"
-                    : "border-[#C0BDB3]/20 text-[#C0BDB3]/60 hover:border-[#C0BDB3]/60 hover:text-[#C0BDB3]"
-                }`}
-              >
-                [ {labels[c.key]} ]
-              </button>
-            );
-          })}
-        </motion.div>
-
-        <motion.div
-          layout
-          className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          <AnimatePresence mode="popLayout">
-            {list.map((w, i) => (
-              <motion.button
-                layout
-                key={w.id}
-                type="button"
-                onClick={() => setActive(w)}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.5, delay: (i % 6) * 0.06 }}
-                whileHover={{ y: -4 }}
-                className="group block text-left w-full bg-transparent border-0 p-0 cursor-pointer"
+          <div className="work-carousel-caption mb-2 flex items-center justify-between font-mono text-[9px] tracking-[0.2em] uppercase text-[#6A6660]">
+            <span><b>{String(list.length).padStart(2, "0")}</b> cases / looped archive</span>
+            <div className="carousel-controls">
+              <span>Wheel / swipe</span>
+              <button type="button" onClick={() => scrollCarousel(-1)} aria-label="Previous project">←</button>
+              <button type="button" onClick={() => scrollCarousel(1)} aria-label="Next project">→</button>
+            </div>
+          </div>
+          <div
+            ref={carouselRef}
+            className="work-carousel"
+            role="region"
+            aria-label="Selected works carousel"
+            tabIndex={0}
+            data-lenis-prevent
+            onKeyDown={handleCarouselKeyDown}
+          >
+            {Array.from({ length: CAROUSEL_COPIES }, (_, copy) =>
+              list.map((w, index) => (
+              <article
+                key={`${copy}-${w.id}`}
+                className="work-carousel-card group block text-left bg-transparent"
+                aria-hidden={copy !== 1}
               >
                 <div className="relative aspect-video bg-[#1A1714] overflow-hidden border border-[#C0BDB3]/10 group-hover:border-[#8B0A1F]/60 transition-all duration-500">
                   <img
                     src={w.poster}
-                    alt={w.title}
+                    alt={copy === 1 ? w.title : ""}
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = "none";
                     }}
@@ -143,10 +232,8 @@ export default function Portfolio() {
                     [ {w.category} ] · {w.duration}
                   </div>
 
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none">
-                    <div className="w-14 h-14 rounded-full border border-[#8B0A1F] bg-black/50 backdrop-blur-sm flex items-center justify-center">
-                      <span className="text-[#8B0A1F] text-[18px] ml-1">▶</span>
-                    </div>
+                  <div className="absolute bottom-3 left-3 font-mono text-[9px] tracking-[0.2em] text-[#E8E4DC] bg-black/80 px-2 py-1 z-10">
+                    N°{String(index + 1).padStart(2, "0")}
                   </div>
 
                   <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#8B0A1F] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 z-10" />
@@ -154,13 +241,7 @@ export default function Portfolio() {
 
                 <div className="mt-3 flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <div
-                      className={`text-[18px] md:text-[22px] uppercase leading-tight text-[#C0BDB3] group-hover:text-[#8B0A1F] transition-colors truncate ${
-                        lang === "ru"
-                          ? "font-[var(--font-cyrillic-display)] font-bold tracking-normal"
-                          : "font-stencil font-black tracking-tight"
-                      }`}
-                    >
+                    <div className="text-[18px] md:text-[22px] uppercase leading-tight text-[#C0BDB3] group-hover:text-[#8B0A1F] transition-colors truncate font-stencil font-black tracking-tight">
                       {w.title}
                     </div>
                     <div className="font-mono text-[10px] text-[#6A6660] mt-1">
@@ -171,98 +252,13 @@ export default function Portfolio() {
                     N°{w.year}
                   </div>
                 </div>
-              </motion.button>
-            ))}
-          </AnimatePresence>
+              </article>
+              )),
+            )}
+          </div>
         </motion.div>
       </div>
 
-      <AnimatePresence>
-        {active && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            onClick={() => setActive(null)}
-            className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 md:p-8"
-          >
-            <motion.div
-              initial={{ scale: 0.92, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.92, opacity: 0 }}
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-5xl"
-            >
-              <div className="flex items-center justify-between mb-3 font-mono text-[10px] md:text-[11px] tracking-[0.2em] uppercase">
-                <div className="text-[#8B0A1F]">
-                  [ {active.category} ] · {active.duration} ·{" "}
-                  <span className="text-[#6A6660]">N°{active.year}</span>
-                </div>
-                <button
-                  onClick={() => setActive(null)}
-                  className="text-[#C0BDB3]/70 hover:text-[#8B0A1F] transition-colors"
-                >
-                  [ CLOSE × ]
-                </button>
-              </div>
-
-              <div className="relative aspect-video bg-black border border-[#8B0A1F]/40 overflow-hidden">
-                {active.videoUrl ? (
-                  getYouTubeEmbed(active.videoUrl) ? (
-                    <iframe
-                      key={active.id}
-                      src={getYouTubeEmbed(active.videoUrl)!}
-                      title={active.title}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                      className="absolute inset-0 w-full h-full"
-                    />
-                  ) : (
-                    <video
-                      key={active.id}
-                      src={active.videoUrl}
-                      poster={active.poster}
-                      controls
-                      autoPlay
-                      playsInline
-                      className="w-full h-full object-contain"
-                    />
-                  )
-                ) : (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-[#6A6660] font-mono text-[12px] tracking-widest uppercase">
-                    <span>// NO VIDEO SOURCE //</span>
-                    <span className="text-[10px] opacity-60">
-                      Source link will be attached soon
-                    </span>
-                  </div>
-                )}
-
-                <span className="absolute top-2 left-2 w-3 h-3 border-l border-t border-[#8B0A1F] pointer-events-none z-10" />
-                <span className="absolute top-2 right-2 w-3 h-3 border-r border-t border-[#8B0A1F] pointer-events-none z-10" />
-                <span className="absolute bottom-2 left-2 w-3 h-3 border-l border-b border-[#8B0A1F] pointer-events-none z-10" />
-                <span className="absolute bottom-2 right-2 w-3 h-3 border-r border-b border-[#8B0A1F] pointer-events-none z-10" />
-              </div>
-
-              <div className="mt-4">
-                <div
-                  className={`text-[24px] md:text-[32px] uppercase leading-tight text-[#C0BDB3] ${
-                    lang === "ru"
-                      ? "font-[var(--font-cyrillic-display)] font-bold tracking-normal"
-                      : "font-stencil font-black tracking-tight"
-                  }`}
-                >
-                  {active.title}
-                </div>
-                <div className="font-mono text-[11px] text-[#6A6660] mt-1">
-                  {active.subtitle}
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 }
