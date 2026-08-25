@@ -1,10 +1,23 @@
+import { lazy, Suspense, useEffect, useState } from "react";
 import { motion } from "motion/react";
-import HeroCharacter from "../three/HeroCharacter";
 import { SOCIAL_LINKS } from "../../data/socialLinks";
 import { CONTENT } from "../../data/content";
 
+const HeroCharacter = lazy(() => import("../three/HeroCharacter"));
+const MOBILE_MEDIA_QUERY = "(max-width: 640px)";
+
 export default function Hero() {
+  const [isMobile, setIsMobile] = useState(() =>
+    window.matchMedia(MOBILE_MEDIA_QUERY).matches,
+  );
   const t = CONTENT.hero;
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(MOBILE_MEDIA_QUERY);
+    const updateViewport = () => setIsMobile(mediaQuery.matches);
+    mediaQuery.addEventListener("change", updateViewport);
+    return () => mediaQuery.removeEventListener("change", updateViewport);
+  }, []);
 
   return (
     <section id="hero" className="hero-reference relative min-h-screen overflow-hidden">
@@ -13,16 +26,20 @@ export default function Hero() {
         <polyline points="387,0 520,0 620,62 1170,62" />
         <circle cx="1170" cy="62" r="5" />
       </svg>
-      <motion.div
-        initial={{ opacity: 0, y: 75 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1.05, delay: 0.1 }}
-        className="hero-object absolute top-[3%] bottom-[-12%] left-[17%] right-[14%]"
-        aria-label="Responsive 3D character"
-      >
-        <HeroCharacter className="w-full h-full translate-x-[70px] md:translate-x-[170px] lg:translate-x-[300px]" />
-        <span className="hero-object-label">Motion linked / cursor input</span>
-      </motion.div>
+      {!isMobile && (
+        <motion.div
+          initial={{ opacity: 0, y: 75 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.05, delay: 0.1 }}
+          className="hero-object absolute top-[3%] bottom-[-12%] left-[17%] right-[14%]"
+          aria-label="Responsive 3D character"
+        >
+          <Suspense fallback={null}>
+            <HeroCharacter className="w-full h-full translate-x-[70px] md:translate-x-[170px] lg:translate-x-[300px]" />
+          </Suspense>
+          <span className="hero-object-label">Motion linked / cursor input</span>
+        </motion.div>
+      )}
 
       <motion.div
         initial={{ opacity: 0, x: -20 }}

@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { motion } from "motion/react";
-import { WORKS, CATEGORIES, type Category } from "../../data/works";
+import { WORKS, CATEGORIES, type Category, type Work } from "../../data/works";
 import { CONTENT } from "../../data/content";
 
 const CAROUSEL_COPIES = 3;
 
 export default function Portfolio() {
   const [filter, setFilter] = useState<Category>("ALL");
+  const [selectedWork, setSelectedWork] = useState<Work | null>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const list =
     filter === "ALL" ? WORKS : WORKS.filter((w) => w.category === filter);
@@ -112,6 +113,22 @@ export default function Portfolio() {
     };
   }, [filter]);
 
+  useEffect(() => {
+    if (!selectedWork) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSelectedWork(null);
+    };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedWork]);
+
   const handleCarouselKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
     event.preventDefault();
@@ -131,7 +148,7 @@ export default function Portfolio() {
   return (
     <section
       id="portfolio"
-      className="relative py-24 md:py-32 px-5 md:px-10 lg:px-20 overflow-hidden cinematic-bg"
+      className="portfolio-section relative py-24 md:py-32 px-5 md:px-10 lg:px-20 overflow-hidden cinematic-bg"
       style={{ "--section-bg": "url('/images/bg-portfolio.webp')" } as CSSProperties}
     >
       <div className="max-w-7xl mx-auto relative z-10">
@@ -211,7 +228,14 @@ export default function Portfolio() {
                 className="work-carousel-card group block text-left bg-transparent"
                 aria-hidden={copy !== 1}
               >
-                <div className="relative aspect-video bg-[#1A1714] overflow-hidden border border-[#C0BDB3]/10 group-hover:border-[#8B0A1F]/60 transition-all duration-500">
+                <button
+                  type="button"
+                  onClick={() => setSelectedWork(w)}
+                  tabIndex={copy === 1 ? 0 : -1}
+                  className="block w-full text-left cursor-pointer"
+                  aria-label={`Open ${w.title}`}
+                >
+                  <div className="relative aspect-video bg-[#1A1714] overflow-hidden border border-[#C0BDB3]/10 group-hover:border-[#8B0A1F]/60 transition-all duration-500">
                   <img
                     src={w.poster}
                     alt={copy === 1 ? w.title : ""}
@@ -237,27 +261,69 @@ export default function Portfolio() {
                   </div>
 
                   <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#8B0A1F] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 z-10" />
-                </div>
+                  </div>
 
-                <div className="mt-3 flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <div className="text-[18px] md:text-[22px] uppercase leading-tight text-[#C0BDB3] group-hover:text-[#8B0A1F] transition-colors truncate font-stencil font-black tracking-tight">
-                      {w.title}
+                  <div className="mt-3 flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="text-[18px] md:text-[22px] uppercase leading-tight text-[#C0BDB3] group-hover:text-[#8B0A1F] transition-colors truncate font-stencil font-black tracking-tight">
+                        {w.title}
+                      </div>
+                      <div className="font-mono text-[10px] text-[#6A6660] mt-1">
+                        {w.subtitle}
+                      </div>
                     </div>
-                    <div className="font-mono text-[10px] text-[#6A6660] mt-1">
-                      {w.subtitle}
+                    <div className="font-mono text-[9px] text-[#6A6660] whitespace-nowrap mt-2">
+                      N°{w.year}
                     </div>
                   </div>
-                  <div className="font-mono text-[9px] text-[#6A6660] whitespace-nowrap mt-2">
-                    N°{w.year}
-                  </div>
-                </div>
+                </button>
               </article>
               )),
             )}
           </div>
         </motion.div>
       </div>
+
+      {selectedWork && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 md:p-10 backdrop-blur-md"
+          role="dialog"
+          aria-modal="true"
+          aria-label={selectedWork.title}
+          onMouseDown={(event) => {
+            if (event.currentTarget === event.target) setSelectedWork(null);
+          }}
+        >
+          <div className="relative w-full max-w-6xl border border-[#C0BDB3]/20 bg-[#050505] p-2 md:p-4">
+            <button
+              type="button"
+              onClick={() => setSelectedWork(null)}
+              className="absolute right-2 top-2 z-10 flex h-10 w-10 items-center justify-center border border-[#C0BDB3]/30 bg-black/80 font-mono text-lg text-[#C0BDB3] hover:border-[#8B0A1F] hover:text-[#8B0A1F]"
+              aria-label="Close preview"
+            >
+              ×
+            </button>
+            <img
+              src={selectedWork.poster}
+              alt={selectedWork.title}
+              className="max-h-[75svh] w-full object-contain"
+            />
+            <div className="flex items-end justify-between gap-4 px-2 pb-2 pt-4">
+              <div>
+                <h3 className="font-stencil text-2xl font-black uppercase text-[#C0BDB3] md:text-4xl">
+                  {selectedWork.title}
+                </h3>
+                <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.15em] text-[#6A6660] md:text-[11px]">
+                  {selectedWork.subtitle}
+                </p>
+              </div>
+              <span className="shrink-0 font-mono text-[9px] text-[#8B0A1F] md:text-[11px]">
+                {selectedWork.duration}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
     </section>
   );

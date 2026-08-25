@@ -15,7 +15,7 @@ export default function Header() {
   return (
     <motion.header
       style={{ background: bg }}
-      className="fixed top-0 left-0 right-0 z-40 border-b border-[#C0BDB3]/5 backdrop-blur-sm"
+      className="absolute md:fixed top-0 left-0 right-0 z-40 border-b border-[#C0BDB3]/5 backdrop-blur-sm"
     >
       <div className="flex items-center justify-between px-5 md:px-10 py-4">
         <a
@@ -46,7 +46,7 @@ export default function Header() {
           </a>
         </motion.nav>
 
-        <motion.div style={{ opacity: controlsOpacity }} className="flex items-center gap-3">
+        <motion.div style={{ opacity: controlsOpacity }} className="mobile-header-controls flex items-center gap-3">
           <a
             href={SOCIAL_LINKS.telegramContact}
             target="_blank"

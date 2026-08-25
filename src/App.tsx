@@ -2,20 +2,20 @@ import { useLenis } from "./hooks/useLenis";
 import Header from "./components/Header";
 import Marquee from "./components/Marquee";
 import GrainOverlay from "./components/GrainOverlay";
-import RecIndicator from "./components/RecIndicator";
 import Hero from "./components/sections/Hero";
 import Manifesto from "./components/sections/Manifesto";
 import Portfolio from "./components/sections/Portfolio";
 import FinalCTA from "./components/sections/FinalCTA";
 import Footer from "./components/Footer";
+import LoadingScreen from "./components/LoadingScreen";
 
 export default function App() {
   useLenis();
 
   return (
     <div className="bg-[#050505] text-[#C0BDB3] min-h-screen relative overflow-x-hidden">
+      <LoadingScreen />
       <GrainOverlay />
-      <RecIndicator />
       <Header />
 
       <main>
