@@ -1,83 +1,113 @@
-import { lazy, Suspense, useEffect, useState } from "react";
-import { motion } from "motion/react";
-import { SOCIAL_LINKS } from "../../data/socialLinks";
-import { CONTENT } from "../../data/content";
+"use client";
 
-const HeroCharacter = lazy(() => import("../three/HeroCharacter"));
-const MOBILE_MEDIA_QUERY = "(max-width: 640px)";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useState } from "react";
+import { WORKS } from "../../data/works";
+import ProjectRing from "../three/ProjectRing";
+import LensingField from "../LensingField";
+
+const AUTOPLAY_DELAY_MS = 4500;
+const AUTO_SNAP_DURATION_SECONDS = 0.95;
+const MANUAL_SNAP_DURATION_SECONDS = 0.7;
+
+function modulo(value: number, divisor: number) {
+  return ((value % divisor) + divisor) % divisor;
+}
 
 export default function Hero() {
-  const [isMobile, setIsMobile] = useState(() =>
-    window.matchMedia(MOBILE_MEDIA_QUERY).matches,
-  );
-  const t = CONTENT.hero;
+  const [position, setPosition] = useState(0);
+  const [snapDuration, setSnapDuration] = useState(AUTO_SNAP_DURATION_SECONDS);
+  const activeIndex = modulo(position, WORKS.length);
+  const activeWork = WORKS[activeIndex];
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia(MOBILE_MEDIA_QUERY);
-    const updateViewport = () => setIsMobile(mediaQuery.matches);
-    mediaQuery.addEventListener("change", updateViewport);
-    return () => mediaQuery.removeEventListener("change", updateViewport);
-  }, []);
+    const timer = window.setTimeout(() => {
+      setSnapDuration(AUTO_SNAP_DURATION_SECONDS);
+      setPosition((current) => current + 1);
+    }, AUTOPLAY_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [position]);
+
+  const moveToIndex = (index: number) => {
+    const currentIndex = modulo(position, WORKS.length);
+    let delta = index - currentIndex;
+    if (delta > WORKS.length / 2) delta -= WORKS.length;
+    if (delta < -WORKS.length / 2) delta += WORKS.length;
+    setSnapDuration(MANUAL_SNAP_DURATION_SECONDS);
+    setPosition((current) => current + delta);
+  };
+
+  const moveBy = (delta: number) => {
+    setSnapDuration(MANUAL_SNAP_DURATION_SECONDS);
+    setPosition((current) => current + delta);
+  };
+
+  const handleRingPositionChange = (nextPosition: number) => {
+    setSnapDuration(MANUAL_SNAP_DURATION_SECONDS);
+    setPosition(nextPosition);
+  };
 
   return (
-    <section id="hero" className="hero-reference relative min-h-screen overflow-hidden">
-      <div className="hero-reference-backdrop" aria-hidden="true" />
-      <svg className="hero-dossier-line hidden lg:block" viewBox="0 0 1200 230" preserveAspectRatio="none" aria-hidden="true">
-        <polyline points="387,0 520,0 620,62 1170,62" />
-        <circle cx="1170" cy="62" r="5" />
-      </svg>
-      {!isMobile && (
+    <section
+      id="hero"
+      className="ape-hero"
+      style={{ "--hero-accent": activeWork.accent, "--hero-backdrop": activeWork.backdrop } as React.CSSProperties}
+    >
+      <AnimatePresence initial={false}>
         <motion.div
-          initial={{ opacity: 0, y: 75 }}
+          key={activeWork.id}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1.1 }}
+          className="ape-hero-bg"
+          style={{
+            backgroundImage: `radial-gradient(circle at 68% 38%, ${activeWork.accent}b8 0%, ${activeWork.accent}66 28%, transparent 62%), radial-gradient(circle at 14% 76%, ${activeWork.accent}78 0%, transparent 46%), linear-gradient(118deg, ${activeWork.backdrop} 0%, ${activeWork.backdrop}e8 54%, #080808 100%)`,
+          }}
+        />
+      </AnimatePresence>
+      <LensingField color={activeWork.accent} />
+
+      <ProjectRing position={position} snapDuration={snapDuration} fogColor={activeWork.backdrop} onPositionChange={handleRingPositionChange} />
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeWork.id}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.05, delay: 0.1 }}
-          className="hero-object absolute top-[3%] bottom-[-12%] left-[17%] right-[14%]"
-          aria-label="Responsive 3D character"
+          exit={{ opacity: 0, y: -14 }}
+          transition={{ duration: 0.48, ease: [0.16, 1, 0.3, 1] }}
+          className="ape-project-copy"
         >
-          <Suspense fallback={null}>
-            <HeroCharacter className="w-full h-full translate-x-[70px] md:translate-x-[170px] lg:translate-x-[300px]" />
-          </Suspense>
-          <span className="hero-object-label">Motion linked / cursor input</span>
+          <div className="ape-project-meta"><i /> Featured <span>{activeWork.category}</span></div>
+          <h1>{activeWork.title}</h1>
+          <p>{activeWork.subtitle}</p>
+          <a href={activeWork.link} target="_blank" rel="noreferrer">Watch project</a>
         </motion.div>
-      )}
+      </AnimatePresence>
 
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.7, delay: 0.55 }}
-        className="hero-dossier hidden lg:block"
-        aria-label="Portfolio file details"
-      >
-        <div className="hero-dossier-data">
-          <span className="hero-dossier-id">FILE INDEX / 06.21</span>
-          <dl>
-            <div><dt>FILE</dt><dd>PORTFOLIO</dd></div>
-            <div><dt>STATUS</dt><dd><i /> AVAILABLE</dd></div>
-            <div><dt>TOOLS</dt><dd>RESOLVE / FUSION / BLENDER</dd></div>
-            <div><dt>BASED</dt><dd>REMOTE / UTC +5</dd></div>
-          </dl>
-        </div>
-      </motion.div>
+      <div className="ape-carousel-controls">
+        <button type="button" onClick={() => moveBy(1)} aria-label="Next project">→</button>
+        <button type="button" onClick={() => moveBy(-1)} aria-label="Previous project">←</button>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, x: -28 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.75, delay: 0.35 }}
-        className="hero-reference-copy"
-      >
-        <div className="hero-original-status"><i /> {t.status}</div>
-        <h1 aria-label="Video editing and motion that holds attention">
-          <span>{t.title1}</span>
-          <span>{t.title2}</span>
-        </h1>
-        <p>{t.sub1}</p>
-      </motion.div>
+      <div className="ape-carousel-thumbs" aria-label="Select project">
+        {WORKS.map((work, index) => (
+          <button
+            type="button"
+            key={work.id}
+            onClick={() => moveToIndex(index)}
+            className={index === activeIndex ? "is-active" : ""}
+            aria-label={`Show ${work.title}`}
+          >
+            <img src={work.poster} alt="" draggable={false} />
+          </button>
+        ))}
+      </div>
 
-      <nav className="hero-reference-actions" aria-label="Hero links">
-        <a href="#manifesto">ABOUT</a>
-        <a href="#portfolio">↗ VIEW WORK</a>
-        <a href={SOCIAL_LINKS.telegramContact} target="_blank" rel="noreferrer">↗ HIRE P.D.</a>
-      </nav>
+      <div className="ape-carousel-progress" aria-hidden="true">
+        <motion.i key={position} initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: AUTOPLAY_DELAY_MS / 1000, ease: "linear" }} />
+      </div>
     </section>
   );
 }

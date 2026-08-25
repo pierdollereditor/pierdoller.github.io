@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import CRTGLB from "../three/CRTGLB";
 import { CONTENT } from "../../data/content";
 import { SOCIAL_LINKS } from "../../data/socialLinks";
+import LensingField from "../LensingField";
 
 export default function FinalCTA() {
   const t = CONTENT.cta;
@@ -14,9 +15,10 @@ export default function FinalCTA() {
       <div className="contact-backdrop" aria-hidden="true">
         <span>PROJECT</span>
       </div>
+      <LensingField />
       <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/25 via-transparent to-[#050505]/15 pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto relative z-10 w-full">
+      <div className="contact-inner max-w-7xl mx-auto relative z-10 w-full">
         <motion.div
           initial={{ opacity: 0, scale: 0.92, x: 40 }}
           whileInView={{ opacity: 1, scale: 1, x: 0 }}
@@ -27,12 +29,12 @@ export default function FinalCTA() {
           <CRTGLB className="w-full h-full" />
         </motion.div>
 
-        <div className="lg:max-w-[54%] w-full relative z-20">
+        <div className="contact-copy lg:max-w-[62%] w-full relative z-20">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="font-mono text-[10px] md:text-[11px] tracking-[0.2em] md:tracking-[0.3em] text-[#8B0A1F] mb-4 md:mb-6 uppercase"
+            className="font-mono text-[13px] md:text-[14px] tracking-[0.14em] md:tracking-[0.2em] text-[#8B0A1F] mb-4 md:mb-6 uppercase"
           >
             {t.label}
           </motion.div>
@@ -42,7 +44,7 @@ export default function FinalCTA() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="contact-title-glow text-[46px] sm:text-[70px] md:text-[110px] lg:text-[130px] leading-[0.95] md:leading-[0.85] uppercase text-[#8B0A1F] font-stencil font-black tracking-tighter"
+            className="contact-title-glow whitespace-nowrap text-[46px] sm:text-[68px] md:text-[92px] lg:text-[110px] leading-[0.95] md:leading-[0.9] uppercase text-[#8B0A1F] font-stencil font-black"
           >
             {t.title1}
             <br />
@@ -64,7 +66,7 @@ export default function FinalCTA() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: 0.5 }}
-            className="mt-8 md:mt-10 flex flex-wrap gap-3 w-full relative z-20"
+            className="contact-actions mt-8 md:mt-10 flex flex-wrap gap-3 w-full relative z-20"
           >
             <Btn href={SOCIAL_LINKS.telegramContact} label="Telegram">
               <path d="M11.944 0A12 12 0 1 0 24 12.056A12.013 12.013 0 0 0 11.944 0ZM16.906 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472c-.18 1.898-.962 6.502-1.36 8.627c-.168.9-.499 1.201-.82 1.23c-.696.065-1.225-.46-1.9-.902c-1.056-.693-1.653-1.124-2.678-1.8c-1.185-.78-.417-1.21.258-1.91c.177-.184 3.247-2.977 3.307-3.23c.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345c-.48.33-.913.492-1.302.486c-.428-.008-1.252-.242-1.865-.44c-.752-.245-1.349-.374-1.297-.789c.027-.216.325-.437.893-.663c3.498-1.524 5.83-2.529 6.998-3.014c3.332-1.386 4.025-1.627 4.476-1.635Z" />
@@ -101,7 +103,7 @@ function Btn({
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="group inline-flex items-center justify-center gap-3 border border-[#C0BDB3]/30 hover:border-[#8B0A1F] hover:bg-[#8B0A1F] hover:text-black px-4 py-3 md:px-6 md:py-4 font-mono text-[10px] md:text-[12px] tracking-[0.2em] md:tracking-[0.25em] uppercase transition-all flex-1 min-w-[140px] relative z-10"
+      className="contact-button group inline-flex items-center justify-center gap-3 border border-[#C0BDB3]/30 hover:border-[#8B0A1F] hover:bg-[#8B0A1F] hover:text-black px-4 py-3 md:px-6 md:py-4 font-mono text-[13px] md:text-[14px] tracking-[0.14em] md:tracking-[0.18em] uppercase transition-all flex-1 min-w-[140px] relative z-10"
     >
       <svg
         viewBox="0 0 24 24"

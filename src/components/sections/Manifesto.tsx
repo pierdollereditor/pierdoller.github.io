@@ -13,31 +13,41 @@ export default function Manifesto() {
       style={{ "--section-bg": "url('/images/bg-approach.webp')" } as CSSProperties}
     >
       {/* Заменили grid на flex, чтобы жестко зафиксировать ширину на мобилках */}
-      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12 items-center relative z-10">
+      <div className="manifesto-inner max-w-7xl mx-auto min-h-[720px] flex items-center relative z-10">
         {/* 3D-модель: hidden lg:block скрывает её на всех экранах меньше 1024px */}
         <motion.div
           initial={{ opacity: 0, x: -40 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 1 }}
-          className="model-stage hidden lg:block relative h-[700px] w-full lg:w-[45%] shrink-0"
+          className="model-stage hidden lg:block absolute inset-[-9%] h-[118%] w-[118%] pointer-events-none opacity-75"
         >
           <FolderGLB className="w-full h-full" />
         </motion.div>
 
+        <motion.div
+          initial={{ opacity: 0, scale: 0.88 }}
+          whileInView={{ opacity: 0.9, scale: 1 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.9 }}
+          className="approach-mobile-folder lg:hidden pointer-events-none"
+        >
+          <FolderGLB className="w-full h-full" variant="mobile" />
+        </motion.div>
+
         {/* Контейнер с текстом занимает 100% ширины экрана на мобилках */}
-        <div className="w-full lg:w-[55%]">
+        <div className="manifesto-copy w-full lg:w-[52%] lg:ml-auto relative z-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="font-mono text-[9px] md:text-[11px] tracking-[0.1em] md:tracking-[0.2em] text-[#8B0A1F] flex flex-wrap gap-x-3 gap-y-2 mb-4 uppercase"
+            className="font-mono text-[13px] md:text-[14px] tracking-[0.08em] md:tracking-[0.12em] text-[#8B0A1F] flex flex-wrap gap-x-3 gap-y-2 mb-4 uppercase"
           >
             <span>
               <span className="text-[#6A6660]">File:</span> N°06.21.26
             </span>
             <span>
-              <span className="text-[#6A6660]">Subject:</span> P.D.
+              <span className="text-[#6A6660]">Subject:</span> PIERDOLLER
             </span>
             <span>
               <span className="text-[#6A6660]">Status:</span>{" "}
@@ -78,8 +88,14 @@ function Censored({ children }: { children: React.ReactNode }) {
     <span
       className="relative inline-block cursor-pointer select-none align-baseline whitespace-nowrap"
       onClick={() => setRevealed(!revealed)}
-      onMouseEnter={() => setRevealed(true)}
-      onMouseLeave={() => setRevealed(false)}
+      onPointerEnter={(event) => {
+        if (event.pointerType === "mouse") setRevealed(true);
+      }}
+      onPointerLeave={(event) => {
+        if (event.pointerType === "mouse") setRevealed(false);
+      }}
+      role="button"
+      tabIndex={0}
     >
       <span className="opacity-0 px-1">{children}</span>
       <span
@@ -88,7 +104,7 @@ function Censored({ children }: { children: React.ReactNode }) {
         }`}
       />
       <span
-        className={`absolute inset-0 flex items-center justify-center px-1 text-[#8B0A1F] transition-opacity duration-300 pointer-events-none ${
+        className={`absolute inset-0 flex items-center justify-center border border-[#8B0A1F]/60 bg-[#8B0A1F]/20 px-1 text-[#D20D32] transition-opacity duration-300 pointer-events-none ${
           revealed ? "opacity-100" : "opacity-0"
         }`}
       >

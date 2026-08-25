@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
-import { useProgress } from "@react-three/drei";
+"use client";
 
-const EXIT_DELAY_MS = 350;
-const FALLBACK_DELAY_MS = 12000;
+import { useEffect, useState } from "react";
+
+const LOAD_DURATION_MS = 3600;
+const COMPLETE_HOLD_MS = 280;
+const EXIT_DURATION_MS = 1000;
 
 export default function LoadingScreen() {
-  const { active, progress, loaded, total } = useProgress();
+  const [progress, setProgress] = useState(0);
   const [isLeaving, setIsLeaving] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
 
@@ -17,21 +19,29 @@ export default function LoadingScreen() {
   }, []);
 
   useEffect(() => {
-    if (total === 0 || active || progress < 100) return;
-    const exitTimer = window.setTimeout(() => setIsLeaving(true), EXIT_DELAY_MS);
-    const hideTimer = window.setTimeout(() => setIsVisible(false), EXIT_DELAY_MS + 550);
+    const startedAt = performance.now();
+    let frame = 0;
+    let exitTimer = 0;
+    let hideTimer = 0;
+
+    const animate = (time: number) => {
+      const elapsed = Math.min((time - startedAt) / LOAD_DURATION_MS, 1);
+      const eased = elapsed * elapsed * (3 - 2 * elapsed);
+      setProgress(Math.min(100, eased * 100));
+      if (elapsed < 1) {
+        frame = requestAnimationFrame(animate);
+        return;
+      }
+      exitTimer = window.setTimeout(() => setIsLeaving(true), COMPLETE_HOLD_MS);
+      hideTimer = window.setTimeout(() => setIsVisible(false), COMPLETE_HOLD_MS + EXIT_DURATION_MS);
+    };
+
+    frame = requestAnimationFrame(animate);
     return () => {
+      cancelAnimationFrame(frame);
       window.clearTimeout(exitTimer);
       window.clearTimeout(hideTimer);
     };
-  }, [active, progress, total]);
-
-  useEffect(() => {
-    const fallbackTimer = window.setTimeout(() => {
-      setIsLeaving(true);
-      window.setTimeout(() => setIsVisible(false), 550);
-    }, FALLBACK_DELAY_MS);
-    return () => window.clearTimeout(fallbackTimer);
   }, []);
 
   useEffect(() => {
@@ -40,16 +50,9 @@ export default function LoadingScreen() {
 
   if (!isVisible) return null;
 
-  const displayProgress = total === 0 ? 0 : Math.round(progress);
-
+  const displayProgress = Math.round(progress);
   return (
     <div className={`loading-screen ${isLeaving ? "is-leaving" : ""}`}>
-      <div className="loading-screen-grid" aria-hidden="true" />
-      <div className="loading-screen-top">
-        <span>P.D.</span>
-        <span>Archive boot / 06.21</span>
-      </div>
-
       <div
         className="loading-screen-main"
         role="progressbar"
@@ -58,18 +61,9 @@ export default function LoadingScreen() {
         aria-valuemax={100}
         aria-valuenow={displayProgress}
       >
-        <div className="loading-screen-status"><i /> Loading assets</div>
+        <div className="loading-screen-brand">PIERDOLLER</div>
         <div className="loading-screen-value">{String(displayProgress).padStart(3, "0")}<small>%</small></div>
-        <div className="loading-screen-track"><i style={{ width: `${displayProgress}%` }} /></div>
-        <div className="loading-screen-meta">
-          <span>Models / textures</span>
-          <span>{String(loaded).padStart(2, "0")} / {String(total).padStart(2, "0")}</span>
-        </div>
-      </div>
-
-      <div className="loading-screen-bottom">
-        <span>Do not close transmission</span>
-        <span>Three.js / WebGL</span>
+        <div className="loading-screen-track"><i style={{ width: `${progress}%` }} /></div>
       </div>
     </div>
   );

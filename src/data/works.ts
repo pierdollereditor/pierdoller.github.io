@@ -9,6 +9,8 @@ export type Work = {
   duration: string;
   poster: string;
   link?: string;
+  accent: string;
+  backdrop: string;
 };
 
 export const CATEGORIES: { key: Category; label: string }[] = [
@@ -26,8 +28,10 @@ export const WORKS: Work[] = [
     category: "LONGFORM",
     year: 2026,
     duration: "00:11",
-    poster: "/images/SOTL.png",
+    poster: "/images/spec-ops.avif",
     link: "https://youtu.be/ScFonzMbJmM",
+    accent: "#B06A45",
+    backdrop: "#28150F",
   },
   {
     id: "orcas",
@@ -36,8 +40,10 @@ export const WORKS: Work[] = [
     category: "REELS",
     year: 2026,
     duration: "01:13",
-    poster: "/images/vox_orcas.jpg",
+    poster: "/images/vox-orcas.avif",
     link: "https://youtube.com/shorts/O3tjabKq_ao",
+    accent: "#2FAEDB",
+    backdrop: "#08283A",
   },
   {
     id: "pepe",
@@ -46,8 +52,10 @@ export const WORKS: Work[] = [
     category: "LONGFORM",
     year: 2026,
     duration: "00:31",
-    poster: "/images/pepe.png",
+    poster: "/images/last-ring.avif",
     link: "https://youtu.be/tFkY4MPuwHg",
+    accent: "#B99A42",
+    backdrop: "#261D09",
   },
   {
     id: "gangland",
@@ -56,7 +64,9 @@ export const WORKS: Work[] = [
     category: "COMMERCIAL",
     year: 2026,
     duration: "00:30",
-    poster: "/images/Valley Clab.jpg",
+    poster: "/images/gangland.avif",
     link: "https://youtu.be/0KrHLNThq-4",
+    accent: "#B77A27",
+    backdrop: "#241408",
   },
 ];
