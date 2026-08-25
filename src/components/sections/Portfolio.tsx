@@ -4,14 +4,19 @@ import { WORKS, CATEGORIES, type Category, type Work } from "../../data/works";
 import { CONTENT } from "../../data/content";
 
 const CAROUSEL_COPIES = 3;
+const MOBILE_MEDIA_QUERY = "(max-width: 640px)";
 
 export default function Portfolio() {
   const [filter, setFilter] = useState<Category>("ALL");
   const [selectedWork, setSelectedWork] = useState<Work | null>(null);
+  const [isMobile, setIsMobile] = useState(() =>
+    window.matchMedia(MOBILE_MEDIA_QUERY).matches,
+  );
   const carouselRef = useRef<HTMLDivElement>(null);
   const list =
     filter === "ALL" ? WORKS : WORKS.filter((w) => w.category === filter);
   const t = CONTENT.portfolio;
+  const carouselCopies = isMobile ? 1 : CAROUSEL_COPIES;
 
   const labels: Record<Category, string> = {
     ALL: t.all,
@@ -21,8 +26,24 @@ export default function Portfolio() {
   };
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia(MOBILE_MEDIA_QUERY);
+    const updateViewport = () => setIsMobile(mediaQuery.matches);
+    mediaQuery.addEventListener("change", updateViewport);
+    return () => mediaQuery.removeEventListener("change", updateViewport);
+  }, []);
+
+  useEffect(() => {
     const carousel = carouselRef.current;
     if (!carousel) return;
+
+    if (isMobile) {
+      carousel.scrollLeft = 0;
+      carousel.querySelectorAll<HTMLElement>(".work-carousel-card").forEach((card) => {
+        card.removeAttribute("style");
+      });
+      return;
+    }
+
     let animationFrame = 0;
     let velocity = 0;
 
@@ -111,7 +132,7 @@ export default function Portfolio() {
       carousel.removeEventListener("wheel", handleWheel);
       carousel.removeEventListener("scroll", handleScroll);
     };
-  }, [filter]);
+  }, [filter, isMobile]);
 
   useEffect(() => {
     if (!selectedWork) return;
@@ -221,24 +242,24 @@ export default function Portfolio() {
             data-lenis-prevent
             onKeyDown={handleCarouselKeyDown}
           >
-            {Array.from({ length: CAROUSEL_COPIES }, (_, copy) =>
+            {Array.from({ length: carouselCopies }, (_, copy) =>
               list.map((w, index) => (
               <article
                 key={`${copy}-${w.id}`}
                 className="work-carousel-card group block text-left bg-transparent"
-                aria-hidden={copy !== 1}
+                aria-hidden={!isMobile && copy !== 1}
               >
                 <button
                   type="button"
                   onClick={() => setSelectedWork(w)}
-                  tabIndex={copy === 1 ? 0 : -1}
+                  tabIndex={isMobile || copy === 1 ? 0 : -1}
                   className="block w-full text-left cursor-pointer"
                   aria-label={`Open ${w.title}`}
                 >
                   <div className="relative aspect-video bg-[#1A1714] overflow-hidden border border-[#C0BDB3]/10 group-hover:border-[#8B0A1F]/60 transition-all duration-500">
                   <img
                     src={w.poster}
-                    alt={copy === 1 ? w.title : ""}
+                    alt={isMobile || copy === 1 ? w.title : ""}
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = "none";
                     }}

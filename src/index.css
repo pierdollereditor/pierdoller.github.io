@@ -849,7 +849,7 @@ html.lenis body {
     }
 
     .hero-reference {
-        min-height: 590px;
+        min-height: 500px;
     }
 
     .hero-object {
@@ -857,13 +857,14 @@ html.lenis body {
     }
 
     .hero-reference-copy {
+        top: 132px;
         right: 16px;
-        bottom: 82px;
+        bottom: auto;
         left: 16px;
     }
 
     .hero-reference-copy h1 {
-        font-size: clamp(43px, 13vw, 62px);
+        font-size: clamp(48px, 14.5vw, 64px);
         line-height: 0.86;
     }
 
@@ -880,7 +881,7 @@ html.lenis body {
 
     .hero-reference-actions {
         right: 12px;
-        bottom: 13px;
+        bottom: 16px;
         left: 12px;
         gap: 5px;
     }
@@ -904,6 +905,12 @@ html.lenis body {
 
     .contact-backdrop span {
         font-size: 46vw;
+    }
+
+    .contact-title-glow {
+        width: 100%;
+        font-size: clamp(58px, 15.5vw, 70px);
+        line-height: 0.84;
     }
 
     #manifesto,
@@ -970,5 +977,15 @@ html.lenis body {
 
     .work-carousel-caption {
         padding-inline: 16px;
+    }
+
+    .carousel-controls {
+        gap: 10px;
+    }
+
+    .carousel-controls button {
+        width: 44px;
+        height: 44px;
+        font-size: 14px;
     }
 }
