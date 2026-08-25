@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { motion } from "motion/react";
-import { WORKS, CATEGORIES, type Category, type Work } from "../../data/works";
+import { WORKS, CATEGORIES, type Category } from "../../data/works";
 import { CONTENT } from "../../data/content";
+import { SOCIAL_LINKS } from "../../data/socialLinks";
 
 const MOBILE_MEDIA_QUERY = "(max-width: 640px)";
 
 export default function Portfolio() {
   const [filter, setFilter] = useState<Category>("ALL");
-  const [selectedWork, setSelectedWork] = useState<Work | null>(null);
   const [isMobile, setIsMobile] = useState(() =>
     window.matchMedia(MOBILE_MEDIA_QUERY).matches,
   );
@@ -118,22 +118,6 @@ export default function Portfolio() {
     };
   }, [filter, isMobile]);
 
-  useEffect(() => {
-    if (!selectedWork) return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setSelectedWork(null);
-    };
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [selectedWork]);
-
   const handleCarouselKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
     event.preventDefault();
@@ -231,16 +215,18 @@ export default function Portfolio() {
                 key={w.id}
                 className="work-carousel-card group block text-left bg-transparent"
               >
-                <button
-                  type="button"
-                  onClick={() => setSelectedWork(w)}
+                <a
+                  href={w.link || SOCIAL_LINKS.youtube}
+                  target="_blank"
+                  rel="noreferrer"
                   className="block w-full text-left cursor-pointer"
-                  aria-label={`Open ${w.title}`}
+                  aria-label={`Watch ${w.title}`}
                 >
                   <div className="relative aspect-video bg-[#1A1714] overflow-hidden border border-[#C0BDB3]/10 group-hover:border-[#8B0A1F]/60 transition-all duration-500">
                   <img
                     src={w.poster}
                     alt={w.title}
+                    draggable={false}
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = "none";
                     }}
@@ -274,57 +260,16 @@ export default function Portfolio() {
                         {w.subtitle}
                       </div>
                     </div>
-                    <div className="font-mono text-[9px] text-[#6A6660] whitespace-nowrap mt-2">
-                      N°{w.year}
+                    <div className="font-mono text-[9px] text-[#8B0A1F] whitespace-nowrap mt-2 tracking-wider">
+                      WATCH ↗
                     </div>
                   </div>
-                </button>
+                </a>
               </article>
             ))}
           </div>
         </motion.div>
       </div>
-
-      {selectedWork && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 md:p-10 backdrop-blur-md"
-          role="dialog"
-          aria-modal="true"
-          aria-label={selectedWork.title}
-          onMouseDown={(event) => {
-            if (event.currentTarget === event.target) setSelectedWork(null);
-          }}
-        >
-          <div className="relative w-full max-w-6xl border border-[#C0BDB3]/20 bg-[#050505] p-2 md:p-4">
-            <button
-              type="button"
-              onClick={() => setSelectedWork(null)}
-              className="absolute right-2 top-2 z-10 flex h-10 w-10 items-center justify-center border border-[#C0BDB3]/30 bg-black/80 font-mono text-lg text-[#C0BDB3] hover:border-[#8B0A1F] hover:text-[#8B0A1F]"
-              aria-label="Close preview"
-            >
-              ×
-            </button>
-            <img
-              src={selectedWork.poster}
-              alt={selectedWork.title}
-              className="max-h-[75svh] w-full object-contain"
-            />
-            <div className="flex items-end justify-between gap-4 px-2 pb-2 pt-4">
-              <div>
-                <h3 className="font-stencil text-2xl font-black uppercase text-[#C0BDB3] md:text-4xl">
-                  {selectedWork.title}
-                </h3>
-                <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.15em] text-[#6A6660] md:text-[11px]">
-                  {selectedWork.subtitle}
-                </p>
-              </div>
-              <span className="shrink-0 font-mono text-[9px] text-[#8B0A1F] md:text-[11px]">
-                {selectedWork.duration}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
 
     </section>
   );
