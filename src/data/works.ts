@@ -30,16 +30,6 @@ export const WORKS: Work[] = [
     link: "https://youtu.be/ScFonzMbJmM",
   },
   {
-    id: "kripto",
-    title: "Crypto Project",
-    subtitle: "Before / After Edit",
-    category: "COMMERCIAL",
-    year: 2026,
-    duration: "00:32",
-    poster: "/images/kripto.png",
-    link: "https://youtu.be/8FWTL4flO7w",
-  },
-  {
     id: "orcas",
     title: "Vox Orcas",
     subtitle: "VFX Mini-Documentary",
