@@ -1,13 +1,20 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
 import { motion } from "motion/react";
-import { WORKS, CATEGORIES, type Category } from "../../data/works";
+import { WORKS, CATEGORIES, type Category, type Work } from "../../data/works";
 import { CONTENT } from "../../data/content";
-import { SOCIAL_LINKS } from "../../data/socialLinks";
 
 const MOBILE_MEDIA_QUERY = "(max-width: 640px)";
+const YOUTUBE_ID_PATTERN = /(?:youtu\.be\/|youtube\.com\/(?:watch\?.*v=|shorts\/|embed\/))([a-zA-Z0-9_-]{11})/;
+
+function getYouTubeEmbed(url?: string) {
+  const videoId = url?.match(YOUTUBE_ID_PATTERN)?.[1];
+  return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : null;
+}
 
 export default function Portfolio() {
   const [filter, setFilter] = useState<Category>("ALL");
+  const [selectedWork, setSelectedWork] = useState<Work | null>(null);
   const [isMobile, setIsMobile] = useState(() =>
     window.matchMedia(MOBILE_MEDIA_QUERY).matches,
   );
@@ -118,6 +125,22 @@ export default function Portfolio() {
     };
   }, [filter, isMobile]);
 
+  useEffect(() => {
+    if (!selectedWork) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSelectedWork(null);
+    };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedWork]);
+
   const handleCarouselKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
     event.preventDefault();
@@ -215,10 +238,9 @@ export default function Portfolio() {
                 key={w.id}
                 className="work-carousel-card group block text-left bg-transparent"
               >
-                <a
-                  href={w.link || SOCIAL_LINKS.youtube}
-                  target="_blank"
-                  rel="noreferrer"
+                <button
+                  type="button"
+                  onClick={() => setSelectedWork(w)}
                   className="block w-full text-left cursor-pointer"
                   aria-label={`Watch ${w.title}`}
                 >
@@ -264,12 +286,63 @@ export default function Portfolio() {
                       WATCH ↗
                     </div>
                   </div>
-                </a>
+                </button>
               </article>
             ))}
           </div>
         </motion.div>
       </div>
+
+      {selectedWork && createPortal(
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-3 backdrop-blur-md md:p-10"
+          role="dialog"
+          aria-modal="true"
+          aria-label={selectedWork.title}
+          onMouseDown={(event) => {
+            if (event.currentTarget === event.target) setSelectedWork(null);
+          }}
+        >
+          <div className="relative w-full max-w-6xl border border-[#C0BDB3]/20 bg-[#050505] p-2 md:p-4">
+            <button
+              type="button"
+              onClick={() => setSelectedWork(null)}
+              className="absolute right-2 top-2 z-10 flex h-11 w-11 items-center justify-center border border-[#C0BDB3]/30 bg-black font-mono text-lg text-[#C0BDB3] hover:border-[#8B0A1F] hover:text-[#8B0A1F]"
+              aria-label="Close video"
+            >
+              ×
+            </button>
+            <div className="aspect-video w-full bg-black">
+              <iframe
+                src={getYouTubeEmbed(selectedWork.link) || undefined}
+                title={selectedWork.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                className="h-full w-full"
+              />
+            </div>
+            <div className="flex items-end justify-between gap-4 px-2 pb-2 pt-4">
+              <div>
+                <h3 className="font-stencil text-2xl font-black uppercase text-[#C0BDB3] md:text-4xl">
+                  {selectedWork.title}
+                </h3>
+                <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.15em] text-[#6A6660] md:text-[11px]">
+                  {selectedWork.subtitle}
+                </p>
+              </div>
+              <a
+                href={selectedWork.link}
+                target="_blank"
+                rel="noreferrer"
+                className="shrink-0 font-mono text-[9px] tracking-wider text-[#8B0A1F] hover:text-[#C0BDB3] md:text-[11px]"
+              >
+                YOUTUBE ↗
+              </a>
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )}
 
     </section>
   );
