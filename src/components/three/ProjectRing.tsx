@@ -83,24 +83,6 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
   const pressedScale = useRef(1);
   const animation = useRef<SnapAnimation>({ active: false, from: 0, to: 0, elapsed: 0, duration: snapDuration });
   const geometry = useMemo(createCurvedPanelGeometry, []);
-  const fadeTexture = useMemo(() => {
-    const textureSize = 128;
-    const data = new Uint8Array(textureSize * textureSize * 4);
-    for (let y = 0; y < textureSize; y += 1) {
-      for (let x = 0; x < textureSize; x += 1) {
-        const distance = Math.sqrt(Math.pow(x / textureSize, 2) + Math.pow(y / textureSize, 2));
-        const value = Math.round(THREE.MathUtils.smoothstep(distance, 0.02, 0.52) * 255);
-        const offset = (y * textureSize + x) * 4;
-        data[offset] = value;
-        data[offset + 1] = value;
-        data[offset + 2] = value;
-        data[offset + 3] = 255;
-      }
-    }
-    const texture = new THREE.DataTexture(data, textureSize, textureSize, THREE.RGBAFormat);
-    texture.needsUpdate = true;
-    return texture;
-  }, []);
   const { camera, size, scene } = useThree();
 
   const startSnap = (target: number, duration = snapDuration) => {
@@ -127,13 +109,12 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
 
   useEffect(() => () => {
     geometry.dispose();
-    fadeTexture.dispose();
-  }, [fadeTexture, geometry]);
+  }, [geometry]);
 
   useFrame((state, delta) => {
     const mobile = size.width <= 640;
     const tablet = size.width <= 900;
-    const cameraTarget = mobile ? 58.4 : tablet ? 35.2 : 26.8;
+    const cameraTarget = mobile ? 46.5 : tablet ? 35.2 : 26.8;
     camera.position.z = THREE.MathUtils.damp(camera.position.z, cameraTarget, 5, delta);
     if (scene.fog instanceof THREE.Fog) {
       scene.fog.near = mobile ? 34 : tablet ? 18 : 10;
@@ -142,7 +123,7 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
 
     if (outerRef.current) {
       const targetX = mobile ? 0 : tablet ? 0.4 : 0.8;
-      const targetY = mobile ? 4.2 : tablet ? -1.35 : -2.55;
+      const targetY = mobile ? 1.2 : tablet ? -1.35 : -2.55;
       const tiltX = mobile ? MOBILE_TILT_X : DESKTOP_TILT_X;
       const motionX = Math.max(-1, Math.min(1, state.pointer.x + deviceTilt.x));
       const motionY = Math.max(-1, Math.min(1, state.pointer.y + deviceTilt.y));
@@ -216,7 +197,6 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
             <Panel
               geometry={geometry}
               poster={work.poster}
-              fadeTexture={fadeTexture}
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}
@@ -228,10 +208,9 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
   );
 }
 
-function Panel({ geometry, poster, fadeTexture, onPointerDown, onPointerMove, onPointerUp }: {
+function Panel({ geometry, poster, onPointerDown, onPointerMove, onPointerUp }: {
   geometry: THREE.BufferGeometry;
   poster: string;
-  fadeTexture: THREE.Texture;
   onPointerDown: (event: ThreeEvent<PointerEvent>) => void;
   onPointerMove: (event: ThreeEvent<PointerEvent>) => void;
   onPointerUp: (event: ThreeEvent<PointerEvent>) => void;
@@ -248,7 +227,7 @@ function Panel({ geometry, poster, fadeTexture, onPointerDown, onPointerMove, on
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
     >
-      <meshBasicMaterial map={texture} alphaMap={fadeTexture} transparent depthWrite={false} side={THREE.DoubleSide} toneMapped={false} fog />
+      <meshBasicMaterial map={texture} side={THREE.DoubleSide} toneMapped={false} fog />
     </mesh>
   );
 }

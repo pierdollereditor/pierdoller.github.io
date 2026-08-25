@@ -15,7 +15,7 @@ export default function FinalCTA() {
       <div className="contact-backdrop" aria-hidden="true">
         <span>PROJECT</span>
       </div>
-      <LensingField />
+      <LensingField className="contact-lensing" color="#E8E4DC" />
       <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/25 via-transparent to-[#050505]/15 pointer-events-none" />
 
       <div className="contact-inner max-w-7xl mx-auto relative z-10 w-full">

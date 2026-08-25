@@ -8,6 +8,7 @@ const WORDMARK = "PIERDOLLER";
 
 const SOCIALS = [
   ["telegram", "Telegram", SOCIAL_LINKS.telegramChannel],
+  ["telegram", "Telegram DM", SOCIAL_LINKS.telegramContact],
   ["instagram", "Instagram", SOCIAL_LINKS.instagram],
   ["youtube", "YouTube", SOCIAL_LINKS.youtube],
   ["tiktok", "TikTok", SOCIAL_LINKS.tiktok],
@@ -54,7 +55,6 @@ export default function Footer() {
       <FolderGLB className="footer-folders" variant="footer" />
 
       <div className="footer-topline">
-        <span>© 2026 PIERDOLLER</span>
         <div className="footer-socials">
           {SOCIALS.map(([icon, label, href]) => (
             <a key={label} href={href} target="_blank" rel="noreferrer" aria-label={label}>
