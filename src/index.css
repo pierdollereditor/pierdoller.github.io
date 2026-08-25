@@ -751,6 +751,7 @@ html.lenis body {
 }
 
 .work-carousel {
+    --work-card-width: clamp(320px, 40vw, 720px);
     display: flex;
     overflow-x: auto;
     overflow-y: hidden;
@@ -763,13 +764,19 @@ html.lenis body {
     padding-block: 20px 44px;
 }
 
+.work-carousel::before,
+.work-carousel::after {
+    content: "";
+    flex: 0 0 max(0px, calc((100vw - var(--work-card-width)) / 2));
+}
+
 .work-carousel::-webkit-scrollbar {
     display: none;
 }
 
 .work-carousel-card {
     position: relative;
-    flex: 0 0 clamp(320px, 40vw, 720px);
+    flex: 0 0 var(--work-card-width);
     padding-inline: clamp(10px, 1.2vw, 22px);
     transform-style: preserve-3d;
     will-change: transform, filter, opacity;
@@ -952,9 +959,7 @@ html.lenis body {
     }
 
     .work-carousel-card {
-        flex-basis: 88vw;
         padding-inline: 6px;
-        scroll-snap-align: center;
         transform: none !important;
         filter: none !important;
         opacity: 1 !important;
@@ -965,7 +970,7 @@ html.lenis body {
     }
 
     .work-carousel {
-        scroll-snap-type: x mandatory;
+        --work-card-width: 88vw;
         perspective: none;
         padding-top: 12px;
         padding-bottom: 8px;

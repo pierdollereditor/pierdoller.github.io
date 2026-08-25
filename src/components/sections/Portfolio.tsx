@@ -3,7 +3,6 @@ import { motion } from "motion/react";
 import { WORKS, CATEGORIES, type Category, type Work } from "../../data/works";
 import { CONTENT } from "../../data/content";
 
-const CAROUSEL_COPIES = 3;
 const MOBILE_MEDIA_QUERY = "(max-width: 640px)";
 
 export default function Portfolio() {
@@ -16,7 +15,6 @@ export default function Portfolio() {
   const list =
     filter === "ALL" ? WORKS : WORKS.filter((w) => w.category === filter);
   const t = CONTENT.portfolio;
-  const carouselCopies = isMobile ? 1 : CAROUSEL_COPIES;
 
   const labels: Record<Category, string> = {
     ALL: t.all,
@@ -47,22 +45,9 @@ export default function Portfolio() {
     let animationFrame = 0;
     let velocity = 0;
 
-    const centerCarousel = () => {
-      const firstCard = carousel.querySelector<HTMLElement>(".work-carousel-card");
-      if (!firstCard) return;
-      carousel.scrollLeft =
-        carousel.scrollWidth / CAROUSEL_COPIES -
-        (carousel.clientWidth - firstCard.offsetWidth) / 2;
+    const initializeCarousel = () => {
+      carousel.scrollLeft = 0;
       updateCardTransforms();
-    };
-
-    const keepCarouselLooped = () => {
-      const segmentWidth = carousel.scrollWidth / CAROUSEL_COPIES;
-      if (carousel.scrollLeft < segmentWidth * 0.5) {
-        carousel.scrollLeft += segmentWidth;
-      } else if (carousel.scrollLeft > segmentWidth * 1.5) {
-        carousel.scrollLeft -= segmentWidth;
-      }
     };
 
     const updateCardTransforms = () => {
@@ -77,7 +62,7 @@ export default function Portfolio() {
         const scale = Math.max(0.76, 1 - absoluteDistance * 0.12);
 
         card.style.transform = `translate3d(0, ${verticalOffset}px, ${depth}px) rotateY(${rotation}deg) scale(${scale})`;
-        card.style.transformOrigin = distance < 0 ? "right center" : "left center";
+        card.style.transformOrigin = "center center";
         card.style.filter = `blur(${Math.min(3.5, absoluteDistance * 2.1)}px) brightness(${Math.max(0.48, 1 - absoluteDistance * 0.24)})`;
         card.style.opacity = String(Math.max(0.35, 1 - absoluteDistance * 0.2));
         card.style.zIndex = String(100 - Math.round(absoluteDistance * 20));
@@ -85,7 +70,6 @@ export default function Portfolio() {
     };
 
     const handleScroll = () => {
-      keepCarouselLooped();
       updateCardTransforms();
     };
 
@@ -119,8 +103,8 @@ export default function Portfolio() {
       startAnimation();
     };
 
-    const frame = requestAnimationFrame(centerCarousel);
-    const observer = new ResizeObserver(centerCarousel);
+    const frame = requestAnimationFrame(initializeCarousel);
+    const observer = new ResizeObserver(updateCardTransforms);
     observer.observe(carousel);
     carousel.addEventListener("wheel", handleWheel, { passive: false });
     carousel.addEventListener("scroll", handleScroll, { passive: true });
@@ -226,7 +210,7 @@ export default function Portfolio() {
           className="work-carousel-shell mt-12"
         >
           <div className="work-carousel-caption mb-2 flex items-center justify-between font-mono text-[9px] tracking-[0.2em] uppercase text-[#6A6660]">
-            <span><b>{String(list.length).padStart(2, "0")}</b> cases / looped archive</span>
+            <span><b>{String(list.length).padStart(2, "0")}</b> cases / selected archive</span>
             <div className="carousel-controls">
               <span>Wheel / swipe</span>
               <button type="button" onClick={() => scrollCarousel(-1)} aria-label="Previous project">←</button>
@@ -242,24 +226,21 @@ export default function Portfolio() {
             data-lenis-prevent
             onKeyDown={handleCarouselKeyDown}
           >
-            {Array.from({ length: carouselCopies }, (_, copy) =>
-              list.map((w, index) => (
+            {list.map((w, index) => (
               <article
-                key={`${copy}-${w.id}`}
+                key={w.id}
                 className="work-carousel-card group block text-left bg-transparent"
-                aria-hidden={!isMobile && copy !== 1}
               >
                 <button
                   type="button"
                   onClick={() => setSelectedWork(w)}
-                  tabIndex={isMobile || copy === 1 ? 0 : -1}
                   className="block w-full text-left cursor-pointer"
                   aria-label={`Open ${w.title}`}
                 >
                   <div className="relative aspect-video bg-[#1A1714] overflow-hidden border border-[#C0BDB3]/10 group-hover:border-[#8B0A1F]/60 transition-all duration-500">
                   <img
                     src={w.poster}
-                    alt={isMobile || copy === 1 ? w.title : ""}
+                    alt={w.title}
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = "none";
                     }}
@@ -299,8 +280,7 @@ export default function Portfolio() {
                   </div>
                 </button>
               </article>
-              )),
-            )}
+            ))}
           </div>
         </motion.div>
       </div>
