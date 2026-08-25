@@ -1,22 +1,11 @@
-import { motion, useScroll, useTransform } from "motion/react";
 import { CONTENT } from "../data/content";
 import { SOCIAL_LINKS } from "../data/socialLinks";
 
 export default function Header() {
-  const { scrollY } = useScroll();
-  const bg = useTransform(
-    scrollY,
-    [0, 100],
-    ["rgba(5,5,5,0)", "rgba(5,5,5,0.92)"],
-  );
-  const controlsOpacity = useTransform(scrollY, [0, 120], [0, 1]);
   const t = CONTENT.nav;
 
   return (
-    <motion.header
-      style={{ background: bg }}
-      className="absolute md:fixed top-0 left-0 right-0 z-40 border-b border-[#C0BDB3]/5 backdrop-blur-sm"
-    >
+    <header className="absolute top-0 left-0 right-0 z-40 border-b border-[#C0BDB3]/5 bg-[#050505]/70 backdrop-blur-sm">
       <div className="flex items-center justify-between px-5 md:px-10 py-4">
         <a
           href="#hero"
@@ -25,7 +14,7 @@ export default function Header() {
           P.D.
         </a>
 
-        <motion.nav style={{ opacity: controlsOpacity }} className="hidden md:flex items-center gap-10 font-mono text-[11px] tracking-[0.25em] uppercase">
+        <nav className="hidden md:flex items-center gap-10 font-mono text-[11px] tracking-[0.25em] uppercase">
           <a
             href="#portfolio"
             className="text-[#C0BDB3]/70 hover:text-[#8B0A1F] transition-colors"
@@ -44,9 +33,9 @@ export default function Header() {
           >
             {t.contact}
           </a>
-        </motion.nav>
+        </nav>
 
-        <motion.div style={{ opacity: controlsOpacity }} className="mobile-header-controls flex items-center gap-3">
+        <div className="flex items-center gap-3">
           <a
             href={SOCIAL_LINKS.telegramContact}
             target="_blank"
@@ -55,8 +44,8 @@ export default function Header() {
           >
             [ {t.hire} ]
           </a>
-        </motion.div>
+        </div>
       </div>
-    </motion.header>
+    </header>
   );
 }

@@ -851,10 +851,6 @@ html.lenis body {
 }
 
 @media (max-width: 640px) {
-    .mobile-header-controls {
-        opacity: 1 !important;
-    }
-
     .hero-reference {
         min-height: 500px;
     }
