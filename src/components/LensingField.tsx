@@ -13,6 +13,7 @@ export default function LensingField({ className = "", color = "#8B0A1F" }: { cl
 
     const pointer = { x: 0, y: 0, targetX: 0, targetY: 0 };
     let frame = 0;
+    let isVisible = false;
 
     const resize = () => {
       const ratio = Math.min(window.devicePixelRatio || 1, 2);
@@ -33,6 +34,7 @@ export default function LensingField({ className = "", color = "#8B0A1F" }: { cl
     };
 
     const draw = () => {
+      if (!isVisible) return;
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
       pointer.x += (pointer.targetX - pointer.x) * 0.09;
@@ -64,11 +66,21 @@ export default function LensingField({ className = "", color = "#8B0A1F" }: { cl
     };
 
     resize();
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !isVisible) {
+        isVisible = true;
+        frame = requestAnimationFrame(draw);
+      } else if (!entry.isIntersecting) {
+        isVisible = false;
+        cancelAnimationFrame(frame);
+      }
+    }, { rootMargin: "120px" });
+    observer.observe(canvas);
     window.addEventListener("resize", resize);
     window.addEventListener("pointermove", move, { passive: true });
-    frame = requestAnimationFrame(draw);
     return () => {
       cancelAnimationFrame(frame);
+      observer.disconnect();
       window.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", move);
     };

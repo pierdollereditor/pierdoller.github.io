@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useMemo, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { ContactShadows, Environment, Float, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
@@ -97,15 +97,24 @@ function Model({ variant }: { variant: FolderVariant }) {
   );
 }
 
-useGLTF.preload("/models/worm_dossier_m.e.g_game_ready.glb");
-
 export default function FolderGLB({ className = "", variant = "default" }: { className?: string; variant?: FolderVariant }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isNearViewport, setIsNearViewport] = useState(false);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const observer = new IntersectionObserver(([entry]) => setIsNearViewport(entry.isIntersecting), { rootMargin: "240px" });
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className={className}>
-      <Canvas
+    <div ref={containerRef} className={className}>
+      {isNearViewport && <Canvas
         camera={{ position: [0, 0, 3], fov: variant === "mobile" ? 22 : 40 }}
         gl={{ antialias: true, alpha: true, toneMapping: THREE.ACESFilmicToneMapping }}
-        dpr={[1, 2]}
+        dpr={variant === "mobile" ? 1 : [1, 2]}
         shadows
       >
         <ambientLight intensity={0.27} />
@@ -137,7 +146,7 @@ export default function FolderGLB({ className = "", variant = "default" }: { cla
             color="#020202"
           />
         </Suspense>
-      </Canvas>
+      </Canvas>}
     </div>
   );
 }

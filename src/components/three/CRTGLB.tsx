@@ -54,8 +54,6 @@ function Model() {
   );
 }
 
-useGLTF.preload("/models/retro_crt_tv.glb");
-
 export default function CRTGLB({ className = "" }: { className?: string }) {
   return (
     <div className={className}>

@@ -2,9 +2,11 @@ import { motion } from "motion/react";
 import { useState, type CSSProperties } from "react";
 import FolderGLB from "../three/FolderGLB";
 import { CONTENT } from "../../data/content";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 
 export default function Manifesto() {
   const t = CONTENT.manifesto;
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   return (
     <section
@@ -14,26 +16,27 @@ export default function Manifesto() {
     >
       {/* Заменили grid на flex, чтобы жестко зафиксировать ширину на мобилках */}
       <div className="manifesto-inner max-w-7xl mx-auto min-h-[720px] flex items-center relative z-10">
-        {/* 3D-модель: hidden lg:block скрывает её на всех экранах меньше 1024px */}
-        <motion.div
-          initial={{ opacity: 0, x: -40 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 1 }}
-          className="model-stage hidden lg:block absolute inset-[-9%] h-[118%] w-[118%] pointer-events-none opacity-75"
-        >
-          <FolderGLB className="w-full h-full" />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.88 }}
-          whileInView={{ opacity: 0.9, scale: 1 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.9 }}
-          className="approach-mobile-folder lg:hidden pointer-events-none"
-        >
-          <FolderGLB className="w-full h-full" variant="mobile" />
-        </motion.div>
+        {isDesktop ? (
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 1 }}
+            className="model-stage absolute inset-[-9%] h-[118%] w-[118%] pointer-events-none opacity-75"
+          >
+            <FolderGLB className="w-full h-full" />
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.88 }}
+            whileInView={{ opacity: 0.9, scale: 1 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.9 }}
+            className="approach-mobile-folder pointer-events-none"
+          >
+            <FolderGLB className="w-full h-full" variant="mobile" />
+          </motion.div>
+        )}
 
         {/* Контейнер с текстом занимает 100% ширины экрана на мобилках */}
         <div className="manifesto-copy w-full lg:w-[52%] lg:ml-auto relative z-20">
@@ -54,7 +57,6 @@ export default function Manifesto() {
               <span className="text-[#6A8B5F]">Active</span>
             </span>
           </motion.div>
-
           <div className="h-px w-full bg-gradient-to-r from-[#8B0A1F]/60 via-[#C0BDB3]/10 to-transparent mb-6" />
 
           <h2 className="text-[46px] md:text-[88px] uppercase leading-[0.9] text-[#C0BDB3] font-stencil font-black tracking-tight">

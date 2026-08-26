@@ -3,9 +3,11 @@ import CRTGLB from "../three/CRTGLB";
 import { CONTENT } from "../../data/content";
 import { SOCIAL_LINKS } from "../../data/socialLinks";
 import LensingField from "../LensingField";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 
 export default function FinalCTA() {
   const t = CONTENT.cta;
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   return (
     <section
@@ -19,7 +21,8 @@ export default function FinalCTA() {
       <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/25 via-transparent to-[#050505]/15 pointer-events-none" />
 
       <div className="contact-inner max-w-7xl mx-auto relative z-10 w-full">
-        <motion.div
+        {isDesktop && (
+          <motion.div
           initial={{ opacity: 0, scale: 0.92, x: 40 }}
           whileInView={{ opacity: 1, scale: 1, x: 0 }}
           viewport={{ once: true }}
@@ -27,7 +30,8 @@ export default function FinalCTA() {
           className="model-stage model-stage-crt hidden lg:block absolute right-[-2%] top-[48%] -translate-y-1/2 w-[54%] h-[820px] pointer-events-none z-10 [&_canvas]:pointer-events-none"
         >
           <CRTGLB className="w-full h-full" />
-        </motion.div>
+          </motion.div>
+        )}
 
         <div className="contact-copy lg:max-w-[62%] w-full relative z-20">
           <motion.div

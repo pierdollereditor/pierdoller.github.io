@@ -117,7 +117,16 @@ export default function Header() {
                     transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   >
                     {MENU_CONTENT[item.key].flatMap((column) => column.actions).map((action) => (
-                      <a key={action.label} href={action.href} target={action.external ? "_blank" : undefined} rel={action.external ? "noreferrer" : undefined}>
+                      <a
+                        key={action.label}
+                        href={action.href}
+                        target={action.external ? "_blank" : undefined}
+                        rel={action.external ? "noreferrer" : undefined}
+                        onClick={() => {
+                          setActiveMenu(null);
+                          setMobileNavOpen(false);
+                        }}
+                      >
                         {action.label}
                       </a>
                     ))}

@@ -12,10 +12,12 @@ import Footer from "./components/Footer";
 import { FEATURES } from "./config/features";
 import LoadingScreen from "./components/LoadingScreen";
 import { useDeviceTilt } from "./hooks/useDeviceTilt";
+import { useStableViewport } from "./hooks/useStableViewport";
 
 export default function App() {
   useLenis();
   useDeviceTilt();
+  useStableViewport();
 
   return (
     <div className="bg-[#050505] text-[#C0BDB3] min-h-screen relative overflow-x-hidden">

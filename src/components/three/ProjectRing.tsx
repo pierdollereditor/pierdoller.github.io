@@ -6,6 +6,7 @@ import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { WORKS } from "../../data/works";
 import { deviceTilt } from "../../hooks/useDeviceTilt";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 
 const RADIUS = 20;
 const PANEL_ARC = Math.PI * 0.21;
@@ -61,9 +62,11 @@ function createCurvedPanelGeometry() {
 }
 
 export default function ProjectRing({ position, snapDuration, fogColor, onPositionChange }: { position: number; snapDuration: number; fogColor: string; onPositionChange: (position: number) => void }) {
+  const isMobile = useMediaQuery("(max-width: 640px)");
+
   return (
     <div className="ape-ring-canvas" aria-hidden="true">
-      <Canvas camera={{ position: [0, 0, 18], fov: 50, near: 0.1, far: 100 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }}>
+      <Canvas camera={{ position: [0, 0, 18], fov: 50, near: 0.1, far: 100 }} dpr={isMobile ? 1 : [1, 1.5]} gl={{ antialias: !isMobile, alpha: true }}>
         <Suspense fallback={null}>
           <Ring position={position} snapDuration={snapDuration} fogColor={fogColor} onPositionChange={onPositionChange} />
         </Suspense>
