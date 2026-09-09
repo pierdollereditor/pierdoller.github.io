@@ -11,13 +11,29 @@ export default function CustomCursor() {
   useEffect(() => {
     if (!window.matchMedia("(pointer: fine)").matches) return;
 
-    const moveCursor = (event: PointerEvent) => {
-      setVisible(true);
+    let lastX = 0;
+    let lastY = 0;
+    let rafId = 0;
+    let lastTarget: Element | null = null;
+
+    const flush = () => {
+      rafId = 0;
       if (cursorRef.current) {
-        cursorRef.current.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0)`;
+        cursorRef.current.style.transform = `translate3d(${lastX}px, ${lastY}px, 0)`;
       }
+    };
+
+    const moveCursor = (event: PointerEvent) => {
+      lastX = event.clientX;
+      lastY = event.clientY;
+      if (rafId === 0) rafId = window.requestAnimationFrame(flush);
+      setVisible((prev) => (prev ? prev : true));
       const target = event.target instanceof Element ? event.target : null;
-      setMode(target?.closest(".ape-ring-canvas") ? "drag" : "default");
+      if (target !== lastTarget) {
+        lastTarget = target;
+        const next = target?.closest(".ape-ring-canvas") ? "drag" : "default";
+        setMode((prev) => (prev === next ? prev : next));
+      }
     };
     const press = () => setPressed(true);
     const release = () => setPressed(false);
@@ -40,6 +56,7 @@ export default function CustomCursor() {
     document.documentElement.addEventListener("pointerleave", hideCursor);
     document.addEventListener("visibilitychange", handleVisibility);
     return () => {
+      if (rafId) window.cancelAnimationFrame(rafId);
       window.removeEventListener("pointermove", moveCursor);
       window.removeEventListener("pointerdown", press);
       window.removeEventListener("pointerup", release);

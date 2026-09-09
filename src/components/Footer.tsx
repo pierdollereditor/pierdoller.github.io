@@ -17,6 +17,8 @@ const SOCIALS = [
 
 export default function Footer() {
   const resetTimer = useRef(0);
+  const rafId = useRef(0);
+  const pendingEvent = useRef<{ x: number; y: number; target: HTMLDivElement } | null>(null);
 
   const settleLetters = (target: HTMLDivElement, delay = 110) => {
     window.clearTimeout(resetTimer.current);
@@ -29,23 +31,43 @@ export default function Footer() {
     }, delay);
   };
 
-  const distortLetters = (event: ReactPointerEvent<HTMLDivElement>) => {
-    window.clearTimeout(resetTimer.current);
-    const letters = event.currentTarget.querySelectorAll<HTMLElement>(".footer-letter");
+  const applyDistortion = () => {
+    rafId.current = 0;
+    const data = pendingEvent.current;
+    if (!data) return;
+    const { x, y, target } = data;
+    const letters = target.querySelectorAll<HTMLElement>(".footer-letter");
     letters.forEach((letter, index) => {
       const bounds = letter.getBoundingClientRect();
-      const dx = event.clientX - (bounds.left + bounds.width / 2);
-      const dy = event.clientY - (bounds.top + bounds.height / 2);
+      const dx = x - (bounds.left + bounds.width / 2);
+      const dy = y - (bounds.top + bounds.height / 2);
       const distance = Math.sqrt(dx * dx + dy * dy);
       const influence = Math.max(0, 1 - distance / 230);
       letter.style.setProperty("--split", String(influence));
       letter.style.setProperty("--shift", `${influence * 13}px`);
-      letter.style.transform = `translateY(${Math.sin(index * 1.7 + event.clientX * 0.018) * influence * 10}px) skewX(${dx * influence * -0.035}deg)`;
+      letter.style.transform = `translateY(${Math.sin(index * 1.7 + x * 0.018) * influence * 10}px) skewX(${dx * influence * -0.035}deg)`;
     });
-    settleLetters(event.currentTarget);
+    settleLetters(target);
+  };
+
+  const distortLetters = (event: ReactPointerEvent<HTMLDivElement>) => {
+    window.clearTimeout(resetTimer.current);
+    pendingEvent.current = {
+      x: event.clientX,
+      y: event.clientY,
+      target: event.currentTarget,
+    };
+    if (rafId.current === 0) {
+      rafId.current = window.requestAnimationFrame(applyDistortion);
+    }
   };
 
   const resetLetters = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (rafId.current !== 0) {
+      window.cancelAnimationFrame(rafId.current);
+      rafId.current = 0;
+    }
+    pendingEvent.current = null;
     settleLetters(event.currentTarget, 40);
   };
 

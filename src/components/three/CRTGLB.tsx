@@ -2,6 +2,7 @@ import { Suspense, useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { ContactShadows, Environment, Float, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
+import { useCanvasVisibility } from "../../hooks/useCanvasVisibility";
 
 function Model() {
   const { scene } = useGLTF("/models/retro_crt_tv.glb");
@@ -55,13 +56,17 @@ function Model() {
 }
 
 export default function CRTGLB({ className = "" }: { className?: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isActive = useCanvasVisibility(containerRef, "200px");
+
   return (
-    <div className={className}>
+    <div ref={containerRef} className={className}>
       <Canvas
         camera={{ position: [0, 0, 6], fov: 45 }}
-        gl={{ antialias: true, alpha: true, toneMapping: THREE.ACESFilmicToneMapping }}
+        gl={{ antialias: true, alpha: true, toneMapping: THREE.ACESFilmicToneMapping, powerPreference: "high-performance" }}
         dpr={[1, 2]}
         shadows
+        frameloop={isActive ? "always" : "never"}
       >
         <ambientLight intensity={0.16} />
         <directionalLight position={[4, 6, 5]} intensity={2.8} castShadow />

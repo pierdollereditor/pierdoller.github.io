@@ -7,6 +7,11 @@ import * as THREE from "three";
 import { WORKS } from "../../data/works";
 import { deviceTilt } from "../../hooks/useDeviceTilt";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
+import { useCanvasVisibility } from "../../hooks/useCanvasVisibility";
+
+// Preload every unique poster used inside the ring so that panels
+// re-use the same texture instance (was: one texture per panel = 8 dupes).
+useTexture.preload(Array.from(new Set(WORKS.map((work) => work.poster))));
 
 const RADIUS = 20;
 const PANEL_ARC = Math.PI * 0.21;
@@ -63,10 +68,17 @@ function createCurvedPanelGeometry() {
 
 export default function ProjectRing({ position, snapDuration, fogColor, onPositionChange }: { position: number; snapDuration: number; fogColor: string; onPositionChange: (position: number) => void }) {
   const isMobile = useMediaQuery("(max-width: 640px)");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isActive = useCanvasVisibility(containerRef, "200px");
 
   return (
-    <div className="ape-ring-canvas" aria-hidden="true">
-      <Canvas camera={{ position: [0, 0, 18], fov: 50, near: 0.1, far: 100 }} dpr={isMobile ? 1 : [1, 1.5]} gl={{ antialias: !isMobile, alpha: true }}>
+    <div ref={containerRef} className="ape-ring-canvas" aria-hidden="true">
+      <Canvas
+        camera={{ position: [0, 0, 18], fov: 50, near: 0.1, far: 100 }}
+        dpr={isMobile ? 1 : [1, 1.5]}
+        gl={{ antialias: !isMobile, alpha: true, powerPreference: "high-performance" }}
+        frameloop={isActive ? "always" : "never"}
+      >
         <Suspense fallback={null}>
           <Ring position={position} snapDuration={snapDuration} fogColor={fogColor} onPositionChange={onPositionChange} />
         </Suspense>
@@ -219,8 +231,11 @@ function Panel({ geometry, poster, onPointerDown, onPointerMove, onPointerUp }: 
   onPointerUp: (event: ThreeEvent<PointerEvent>) => void;
 }) {
   const texture = useTexture(poster);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.anisotropy = 8;
+  useMemo(() => {
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = 8;
+    texture.needsUpdate = true;
+  }, [texture]);
 
   return (
     <mesh

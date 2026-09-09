@@ -14,10 +14,21 @@ export default function LensingField({ className = "", color = "#8B0A1F" }: { cl
     const pointer = { x: 0, y: 0, targetX: 0, targetY: 0 };
     let frame = 0;
     let isVisible = false;
+    let tabVisible =
+      typeof document === "undefined" ? true : document.visibilityState !== "hidden";
+    let cachedBounds: DOMRect | null = null;
+
+    const readBounds = () => {
+      if (!cachedBounds) cachedBounds = canvas.getBoundingClientRect();
+      return cachedBounds;
+    };
+    const invalidateBounds = () => { cachedBounds = null; };
 
     const resize = () => {
+      invalidateBounds();
       const ratio = Math.min(window.devicePixelRatio || 1, 2);
       const bounds = canvas.getBoundingClientRect();
+      cachedBounds = bounds;
       canvas.width = Math.max(1, Math.round(bounds.width * ratio));
       canvas.height = Math.max(1, Math.round(bounds.height * ratio));
       context.setTransform(ratio, 0, 0, ratio, 0, 0);
@@ -28,13 +39,16 @@ export default function LensingField({ className = "", color = "#8B0A1F" }: { cl
     };
 
     const move = (event: PointerEvent) => {
-      const bounds = canvas.getBoundingClientRect();
+      if (!isVisible) return;
+      const bounds = readBounds();
       pointer.targetX = event.clientX - bounds.left;
       pointer.targetY = event.clientY - bounds.top;
     };
 
+    const shouldRun = () => isVisible && tabVisible;
+
     const draw = () => {
-      if (!isVisible) return;
+      if (!shouldRun()) { frame = 0; return; }
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
       pointer.x += (pointer.targetX - pointer.x) * 0.09;
@@ -65,23 +79,33 @@ export default function LensingField({ className = "", color = "#8B0A1F" }: { cl
       frame = requestAnimationFrame(draw);
     };
 
+    const startLoop = () => {
+      if (frame === 0 && shouldRun()) frame = requestAnimationFrame(draw);
+    };
+
     resize();
     const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !isVisible) {
-        isVisible = true;
-        frame = requestAnimationFrame(draw);
-      } else if (!entry.isIntersecting) {
-        isVisible = false;
-        cancelAnimationFrame(frame);
-      }
+      isVisible = entry.isIntersecting;
+      if (isVisible) startLoop();
+      else if (frame) { cancelAnimationFrame(frame); frame = 0; }
     }, { rootMargin: "120px" });
     observer.observe(canvas);
+
+    const onVisibility = () => {
+      tabVisible = document.visibilityState !== "hidden";
+      if (tabVisible) startLoop();
+      else if (frame) { cancelAnimationFrame(frame); frame = 0; }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("resize", resize);
+    window.addEventListener("scroll", invalidateBounds, { passive: true });
     window.addEventListener("pointermove", move, { passive: true });
     return () => {
-      cancelAnimationFrame(frame);
+      if (frame) cancelAnimationFrame(frame);
       observer.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("resize", resize);
+      window.removeEventListener("scroll", invalidateBounds);
       window.removeEventListener("pointermove", move);
     };
   }, [color]);
