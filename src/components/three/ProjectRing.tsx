@@ -13,11 +13,17 @@ import FrameScheduler from "./FrameScheduler";
 
 useTexture.preload(Array.from(new Set(WORKS.map((work) => work.poster))));
 
-const RADIUS = 20;
-const PANEL_ARC = Math.PI * 0.21;
-const PANEL_HEIGHT = (RADIUS * PANEL_ARC) / (21 / 9);
-const PANEL_SEGMENTS = 48;
+const BASE_RADIUS = 20;
+const BASE_PANEL_ARC = Math.PI * 0.21;
+const PANEL_WIDTH = BASE_RADIUS * BASE_PANEL_ARC;
 const CARD_ANGLE = (Math.PI * 2) / WORKS.length;
+const MAX_PANEL_GAP = THREE.MathUtils.degToRad(7);
+const MAX_PANEL_ARC = THREE.MathUtils.degToRad(66);
+const PANEL_GAP = Math.min(MAX_PANEL_GAP, CARD_ANGLE * 0.12);
+const PANEL_ARC = Math.min(MAX_PANEL_ARC, CARD_ANGLE - PANEL_GAP);
+const RADIUS = PANEL_WIDTH / PANEL_ARC;
+const PANEL_HEIGHT = PANEL_WIDTH / (21 / 9);
+const PANEL_SEGMENTS = 48;
 const DRAG_SNAP_DURATION_SECONDS = 0.7;
 const DRAG_THRESHOLD_PX = 36;
 const MAX_DRAG_ANGLE = THREE.MathUtils.degToRad(18);
@@ -25,6 +31,9 @@ const IDLE_DRIFT_SPEED = THREE.MathUtils.degToRad(1.7);
 const MAX_IDLE_DRIFT = THREE.MathUtils.degToRad(12);
 const DESKTOP_TILT_X = THREE.MathUtils.degToRad(-8);
 const MOBILE_TILT_X = THREE.MathUtils.degToRad(-5);
+const DESKTOP_CAMERA_OFFSET = 6.8;
+const TABLET_CAMERA_OFFSET = 15.2;
+const MOBILE_CAMERA_OFFSET = 26.5;
 
 type SnapAnimation = {
   active: boolean;
@@ -130,7 +139,7 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
   useFrame((state, delta) => {
     const mobile = size.width <= 640;
     const tablet = size.width <= 900;
-    const cameraTarget = mobile ? 46.5 : tablet ? 35.2 : 26.8;
+    const cameraTarget = RADIUS + (mobile ? MOBILE_CAMERA_OFFSET : tablet ? TABLET_CAMERA_OFFSET : DESKTOP_CAMERA_OFFSET);
     camera.position.z = THREE.MathUtils.damp(camera.position.z, cameraTarget, 5, delta);
     if (scene.fog instanceof THREE.Fog) {
       scene.fog.near = mobile ? 34 : tablet ? 18 : 10;
