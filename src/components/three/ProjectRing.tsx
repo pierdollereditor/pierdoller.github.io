@@ -11,16 +11,13 @@ import { useCanvasVisibility } from "../../hooks/useCanvasVisibility";
 import { useConstrainedRendering } from "../../hooks/useConstrainedRendering";
 import FrameScheduler from "./FrameScheduler";
 
-// Preload every unique poster used inside the ring so that panels
-// re-use the same texture instance (was: one texture per panel = 8 dupes).
 useTexture.preload(Array.from(new Set(WORKS.map((work) => work.poster))));
 
 const RADIUS = 20;
 const PANEL_ARC = Math.PI * 0.21;
 const PANEL_HEIGHT = (RADIUS * PANEL_ARC) / (21 / 9);
 const PANEL_SEGMENTS = 48;
-const RING_WORKS = [...WORKS, ...WORKS];
-const CARD_ANGLE = (Math.PI * 2) / RING_WORKS.length;
+const CARD_ANGLE = (Math.PI * 2) / WORKS.length;
 const DRAG_SNAP_DURATION_SECONDS = 0.7;
 const DRAG_THRESHOLD_PX = 36;
 const MAX_DRAG_ANGLE = THREE.MathUtils.degToRad(18);
@@ -211,7 +208,7 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
   return (
     <group ref={outerRef}>
       <group ref={ringRef}>
-        {RING_WORKS.map((work, index) => (
+        {WORKS.map((work, index) => (
           <group key={`${work.id}-${index}`} rotation-y={index * CARD_ANGLE}>
             <Panel
               geometry={geometry}
