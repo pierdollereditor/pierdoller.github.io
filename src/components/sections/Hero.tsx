@@ -7,8 +7,9 @@ import ProjectRing from "../three/ProjectRing";
 import LensingField from "../LensingField";
 
 const AUTOPLAY_DELAY_MS = 4500;
-const AUTO_SNAP_DURATION_SECONDS = 1.3;
-const MANUAL_SNAP_DURATION_SECONDS = 1;
+const AUTO_SNAP_DURATION_SECONDS = 1.1;
+const MANUAL_SNAP_DURATION_SECONDS = 0.85;
+const CONTENT_SWITCH_PROGRESS = 0.45;
 
 function modulo(value: number, divisor: number) {
   return ((value % divisor) + divisor) % divisor;
@@ -16,9 +17,18 @@ function modulo(value: number, divisor: number) {
 
 export default function Hero() {
   const [position, setPosition] = useState(0);
+  const [visiblePosition, setVisiblePosition] = useState(0);
   const [snapDuration, setSnapDuration] = useState(AUTO_SNAP_DURATION_SECONDS);
-  const activeIndex = modulo(position, WORKS.length);
+  const activeIndex = modulo(visiblePosition, WORKS.length);
   const activeWork = WORKS[activeIndex];
+
+  useEffect(() => {
+    const timer = window.setTimeout(
+      () => setVisiblePosition(position),
+      snapDuration * CONTENT_SWITCH_PROGRESS * 1000,
+    );
+    return () => window.clearTimeout(timer);
+  }, [position, snapDuration]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {

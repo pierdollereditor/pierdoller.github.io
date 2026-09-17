@@ -28,8 +28,6 @@ const PANEL_SEGMENTS = 48;
 const DRAG_SNAP_DURATION_SECONDS = 0.7;
 const DRAG_THRESHOLD_PX = 36;
 const MAX_DRAG_ANGLE = THREE.MathUtils.degToRad(18);
-const IDLE_DRIFT_SPEED = THREE.MathUtils.degToRad(0.2);
-const MAX_IDLE_DRIFT = THREE.MathUtils.degToRad(1);
 const DESKTOP_TILT_X = THREE.MathUtils.degToRad(-8);
 const MOBILE_TILT_X = THREE.MathUtils.degToRad(-5);
 const DESKTOP_CAMERA_OFFSET = 6.8;
@@ -105,7 +103,6 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
   const currentRotation = useRef(-position * CARD_ANGLE);
   const dragStartX = useRef(0);
   const dragStartRotation = useRef(0);
-  const targetRotation = useRef(-position * CARD_ANGLE);
   const dragging = useRef(false);
   const pressedScale = useRef(1);
   const animation = useRef<SnapAnimation>({ active: false, from: 0, to: 0, elapsed: 0, duration: snapDuration });
@@ -123,8 +120,7 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
   };
 
   useEffect(() => {
-    targetRotation.current = -position * CARD_ANGLE;
-    startSnap(targetRotation.current);
+    startSnap(-position * CARD_ANGLE);
   }, [position, snapDuration]);
 
   useEffect(() => {
@@ -151,7 +147,7 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
 
     if (outerRef.current) {
       const targetX = 0;
-      const targetY = mobile ? 1.6 : tablet ? -0.3 : -1.1;
+      const targetY = mobile ? 1.45 : tablet ? -0.45 : -1.35;
       const tiltX = mobile ? MOBILE_TILT_X : DESKTOP_TILT_X;
       const motionX = Math.max(-1, Math.min(1, state.pointer.x + deviceTilt.x));
       const motionY = Math.max(-1, Math.min(1, state.pointer.y + deviceTilt.y));
@@ -167,17 +163,12 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
     if (!dragging.current && animation.current.active) {
       animation.current.elapsed += delta;
       const progress = Math.min(1, animation.current.elapsed / animation.current.duration);
-      const eased = progress * progress * progress * (progress * (progress * 6 - 15) + 10);
+      const eased = (1 - Math.cos(Math.PI * progress)) / 2;
       currentRotation.current = THREE.MathUtils.lerp(animation.current.from, animation.current.to, eased);
       if (progress === 1) {
         currentRotation.current = animation.current.to;
         animation.current.active = false;
       }
-    } else if (!dragging.current) {
-      currentRotation.current = Math.max(
-        targetRotation.current - MAX_IDLE_DRIFT,
-        currentRotation.current - IDLE_DRIFT_SPEED * delta,
-      );
     }
 
     if (ringRef.current) ringRef.current.rotation.y = currentRotation.current;

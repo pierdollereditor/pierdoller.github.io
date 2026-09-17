@@ -592,6 +592,15 @@ body.menu-open .cinematic-footer {
     pointer-events: none;
 }
 
+.ape-project-copy::before {
+    content: "";
+    position: absolute;
+    inset: -24px -72px -20px -28px;
+    z-index: -1;
+    background: linear-gradient(90deg, rgba(5, 5, 5, 0.9), rgba(5, 5, 5, 0.68) 58%, transparent 100%);
+    pointer-events: none;
+}
+
 .ape-project-meta {
     display: flex;
     align-items: center;
