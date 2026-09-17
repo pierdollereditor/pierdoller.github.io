@@ -22,6 +22,18 @@ export const CATEGORIES: { key: Category; label: string }[] = [
 
 export const WORKS: Work[] = [
   {
+    id: "invenio",
+    title: "INVENIO",
+    subtitle: "Product Promo · Motion Design",
+    category: "COMMERCIAL",
+    year: 2026,
+    duration: "00:22",
+    poster: "/images/apple.avif",
+    link: "https://youtu.be/oWnPQs2Sxrg",
+    accent: "#C7D5E7",
+    backdrop: "#17202C",
+  },
+  {
     id: "spec-ops",
     title: "Spec Ops: The Line",
     subtitle: "Visual Essay · YouTube",

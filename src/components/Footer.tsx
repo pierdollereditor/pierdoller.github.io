@@ -7,7 +7,6 @@ import FolderGLB from "./three/FolderGLB";
 const WORDMARK = "PIERDOLLER";
 
 const SOCIALS = [
-  ["telegram", "Telegram", SOCIAL_LINKS.telegramChannel],
   ["telegram", "Telegram DM", SOCIAL_LINKS.telegramContact],
   ["instagram", "Instagram", SOCIAL_LINKS.instagram],
   ["youtube", "YouTube", SOCIAL_LINKS.youtube],
@@ -51,6 +50,7 @@ export default function Footer() {
   };
 
   const distortLetters = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== "mouse") return;
     window.clearTimeout(resetTimer.current);
     pendingEvent.current = {
       x: event.clientX,

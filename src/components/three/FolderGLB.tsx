@@ -1,13 +1,15 @@
-import { Suspense, useEffect, useMemo, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { ContactShadows, Environment, Float, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { deviceTilt } from "../../hooks/useDeviceTilt";
-import { useCanvasVisibility } from "../../hooks/useCanvasVisibility";
+import { MODEL_CANVAS_PRELOAD_MARGIN, useCanvasVisibility } from "../../hooks/useCanvasVisibility";
+import { useConstrainedRendering } from "../../hooks/useConstrainedRendering";
+import FrameScheduler from "./FrameScheduler";
 
 type FolderVariant = "default" | "footer" | "mobile";
 
-function Model({ variant }: { variant: FolderVariant }) {
+function Model({ variant, enableShadows, maxAnisotropy }: { variant: FolderVariant; enableShadows: boolean; maxAnisotropy: number }) {
   const { scene } = useGLTF("/models/worm_dossier_m.e.g_game_ready.glb");
   const { gl } = useThree();
   const models = useMemo(() => {
@@ -15,8 +17,8 @@ function Model({ variant }: { variant: FolderVariant }) {
       const model = scene.clone(true);
       model.traverse((child) => {
         if (!(child instanceof THREE.Mesh)) return;
-        child.castShadow = true;
-        child.receiveShadow = true;
+        child.castShadow = enableShadows;
+        child.receiveShadow = enableShadows;
         const materials = Array.isArray(child.material) ? child.material : [child.material];
         materials.forEach((material) => {
           if (material instanceof THREE.MeshStandardMaterial) {
@@ -24,7 +26,7 @@ function Model({ variant }: { variant: FolderVariant }) {
             material.roughness = Math.max(material.roughness, 0.72);
             material.normalScale.set(0.35, 0.35);
             if (material.map) {
-              material.map.anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy());
+              material.map.anisotropy = Math.min(maxAnisotropy, gl.capabilities.getMaxAnisotropy());
               material.map.minFilter = THREE.LinearMipmapLinearFilter;
               material.map.magFilter = THREE.LinearFilter;
               material.map.generateMipmaps = true;
@@ -36,7 +38,7 @@ function Model({ variant }: { variant: FolderVariant }) {
       });
       return model;
     });
-  }, [gl, scene]);
+  }, [enableShadows, gl, maxAnisotropy, scene]);
 
   const refs = useRef<Array<THREE.Group | null>>([]);
   const pointer = useRef({ x: 0, y: 0 });
@@ -100,24 +102,34 @@ function Model({ variant }: { variant: FolderVariant }) {
 
 export default function FolderGLB({ className = "", variant = "default" }: { className?: string; variant?: FolderVariant }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const isActive = useCanvasVisibility(containerRef, "300px");
+  const { isActive } = useCanvasVisibility(containerRef, MODEL_CANVAS_PRELOAD_MARGIN);
+  const isConstrained = useConstrainedRendering();
   const hasMountedRef = useRef(false);
   if (isActive) hasMountedRef.current = true;
   const shouldRender = hasMountedRef.current;
+  const [isReady, setIsReady] = useState(false);
 
   return (
-    <div ref={containerRef} className={className}>
+    <div
+      ref={containerRef}
+      className={className}
+      style={{
+        opacity: isReady ? 1 : 0,
+        transition: "opacity 700ms ease-out",
+      }}
+    >
       {shouldRender && (
       <Canvas
         camera={{ position: [0, 0, 3], fov: variant === "mobile" ? 22 : 40 }}
-        gl={{ antialias: true, alpha: true, toneMapping: THREE.ACESFilmicToneMapping, powerPreference: "high-performance" }}
-        dpr={variant === "mobile" ? 1 : [1, 2]}
-        shadows
-        frameloop={isActive ? "always" : "never"}
+        gl={{ antialias: !isConstrained, alpha: true, toneMapping: THREE.ACESFilmicToneMapping, powerPreference: "high-performance" }}
+        dpr={variant === "mobile" || isConstrained ? 1 : [1, 2]}
+        shadows={!isConstrained}
+        frameloop={isActive ? "demand" : "never"}
       >
+        <FrameScheduler enabled={isActive} />
         <ambientLight intensity={0.27} />
         <fog attach="fog" args={["#050505", 5.5, 12]} />
-        <directionalLight position={[4, 6, 5]} intensity={1.8} castShadow />
+        <directionalLight position={[4, 6, 5]} intensity={1.8} castShadow={!isConstrained} />
         <directionalLight
           position={[-5, 1, -3]}
           intensity={1.25}
@@ -128,12 +140,12 @@ export default function FolderGLB({ className = "", variant = "default" }: { cla
           intensity={2}
           angle={0.42}
           penumbra={0.75}
-          castShadow
+          castShadow={!isConstrained}
         />
         <Environment preset="warehouse" environmentIntensity={0.58} />
         <Suspense fallback={null}>
           <Float speed={0.65} rotationIntensity={0.08} floatIntensity={0.16}>
-            <Model variant={variant} />
+            <Model variant={variant} enableShadows={!isConstrained} maxAnisotropy={isConstrained ? 4 : 8} />
           </Float>
           <ContactShadows
             position={[0, -1.55, 0]}
@@ -142,10 +154,32 @@ export default function FolderGLB({ className = "", variant = "default" }: { cla
             blur={2.2}
             far={4}
             color="#020202"
+            frames={isConstrained ? 1 : Infinity}
+            resolution={isConstrained ? 256 : 512}
           />
+          <ReadyBeacon onReady={() => setIsReady(true)} />
         </Suspense>
       </Canvas>
       )}
     </div>
   );
+}
+
+/**
+ * Рендерится внутри Suspense. Как только Suspense разрешился
+ * (все useGLTF/Environment загрузились) — вызывает onReady на следующий кадр.
+ */
+function ReadyBeacon({ onReady }: { onReady: () => void }) {
+  useEffect(() => {
+    // ждём один кадр, чтобы GPU успел закомпилировать шейдеры/материалы
+    let innerRaf = 0;
+    const raf = requestAnimationFrame(() => {
+      innerRaf = requestAnimationFrame(onReady);
+    });
+    return () => {
+      cancelAnimationFrame(raf);
+      cancelAnimationFrame(innerRaf);
+    };
+  }, [onReady]);
+  return null;
 }

@@ -2,6 +2,9 @@
 
 import { useEffect, useRef } from "react";
 
+const MAX_FRAME_RATE = 60;
+const FRAME_INTERVAL = 1000 / MAX_FRAME_RATE;
+
 export default function LensingField({ className = "", color = "#8B0A1F" }: { className?: string; color?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -10,9 +13,11 @@ export default function LensingField({ className = "", color = "#8B0A1F" }: { cl
     if (!canvas) return;
     const context = canvas.getContext("2d");
     if (!context) return;
+    const isConstrained = window.matchMedia("(pointer: coarse), (hover: none)").matches;
 
     const pointer = { x: 0, y: 0, targetX: 0, targetY: 0 };
     let frame = 0;
+    let previousFrameTime = 0;
     let isVisible = false;
     let tabVisible =
       typeof document === "undefined" ? true : document.visibilityState !== "hidden";
@@ -26,7 +31,7 @@ export default function LensingField({ className = "", color = "#8B0A1F" }: { cl
 
     const resize = () => {
       invalidateBounds();
-      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      const ratio = Math.min(window.devicePixelRatio || 1, isConstrained ? 1 : 2);
       const bounds = canvas.getBoundingClientRect();
       cachedBounds = bounds;
       canvas.width = Math.max(1, Math.round(bounds.width * ratio));
@@ -36,6 +41,7 @@ export default function LensingField({ className = "", color = "#8B0A1F" }: { cl
         pointer.x = pointer.targetX = bounds.width * 0.58;
         pointer.y = pointer.targetY = bounds.height * 0.48;
       }
+      if (isVisible) startLoop();
     };
 
     const move = (event: PointerEvent) => {
@@ -47,8 +53,14 @@ export default function LensingField({ className = "", color = "#8B0A1F" }: { cl
 
     const shouldRun = () => isVisible && tabVisible;
 
-    const draw = () => {
+    const draw = (time: number) => {
       if (!shouldRun()) { frame = 0; return; }
+      const elapsed = time - previousFrameTime;
+      if (!isConstrained && previousFrameTime > 0 && elapsed + 0.5 < FRAME_INTERVAL) {
+        frame = requestAnimationFrame(draw);
+        return;
+      }
+      previousFrameTime = time - (elapsed % FRAME_INTERVAL);
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
       pointer.x += (pointer.targetX - pointer.x) * 0.09;
@@ -76,7 +88,7 @@ export default function LensingField({ className = "", color = "#8B0A1F" }: { cl
         }
         context.stroke();
       }
-      frame = requestAnimationFrame(draw);
+      frame = isConstrained ? 0 : requestAnimationFrame(draw);
     };
 
     const startLoop = () => {
@@ -99,14 +111,14 @@ export default function LensingField({ className = "", color = "#8B0A1F" }: { cl
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("resize", resize);
     window.addEventListener("scroll", invalidateBounds, { passive: true });
-    window.addEventListener("pointermove", move, { passive: true });
+    if (!isConstrained) window.addEventListener("pointermove", move, { passive: true });
     return () => {
       if (frame) cancelAnimationFrame(frame);
       observer.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("resize", resize);
       window.removeEventListener("scroll", invalidateBounds);
-      window.removeEventListener("pointermove", move);
+      if (!isConstrained) window.removeEventListener("pointermove", move);
     };
   }, [color]);
 

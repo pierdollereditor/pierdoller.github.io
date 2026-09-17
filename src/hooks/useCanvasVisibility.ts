@@ -5,10 +5,11 @@ import { useEffect, useState, type RefObject } from "react";
 /**
  * Observes whether a container is near the viewport.
  * Returns a boolean used to switch a R3F Canvas between
- * `frameloop="always"` (visible) and `frameloop="never"` (offscreen).
+ * active and paused rendering.
  *
  * Also reacts to document.visibilityState so that background tabs
  * do not keep spending GPU cycles.
+ *
  */
 export function useCanvasVisibility(
   ref: RefObject<HTMLElement | null>,
@@ -47,5 +48,7 @@ export function useCanvasVisibility(
     };
   }, [ref, rootMargin]);
 
-  return isActive;
+  return { isActive };
 }
+
+export const MODEL_CANVAS_PRELOAD_MARGIN = "1600px";

@@ -8,6 +8,8 @@ import { WORKS } from "../../data/works";
 import { deviceTilt } from "../../hooks/useDeviceTilt";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { useCanvasVisibility } from "../../hooks/useCanvasVisibility";
+import { useConstrainedRendering } from "../../hooks/useConstrainedRendering";
+import FrameScheduler from "./FrameScheduler";
 
 // Preload every unique poster used inside the ring so that panels
 // re-use the same texture instance (was: one texture per panel = 8 dupes).
@@ -68,17 +70,19 @@ function createCurvedPanelGeometry() {
 
 export default function ProjectRing({ position, snapDuration, fogColor, onPositionChange }: { position: number; snapDuration: number; fogColor: string; onPositionChange: (position: number) => void }) {
   const isMobile = useMediaQuery("(max-width: 640px)");
+  const isConstrained = useConstrainedRendering();
   const containerRef = useRef<HTMLDivElement>(null);
-  const isActive = useCanvasVisibility(containerRef, "200px");
+  const { isActive } = useCanvasVisibility(containerRef, "200px");
 
   return (
     <div ref={containerRef} className="ape-ring-canvas" aria-hidden="true">
       <Canvas
         camera={{ position: [0, 0, 18], fov: 50, near: 0.1, far: 100 }}
-        dpr={isMobile ? 1 : [1, 1.5]}
-        gl={{ antialias: !isMobile, alpha: true, powerPreference: "high-performance" }}
-        frameloop={isActive ? "always" : "never"}
+        dpr={isMobile || isConstrained ? 1 : [1, 1.5]}
+        gl={{ antialias: !isMobile && !isConstrained, alpha: true, powerPreference: "high-performance" }}
+        frameloop={isActive ? "demand" : "never"}
       >
+        <FrameScheduler enabled={isActive} />
         <Suspense fallback={null}>
           <Ring position={position} snapDuration={snapDuration} fogColor={fogColor} onPositionChange={onPositionChange} />
         </Suspense>

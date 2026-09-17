@@ -18,7 +18,6 @@ const MENU_CONTENT: Record<MenuKey, Array<{ title: string; actions: Array<{ labe
     {
       title: "Telegram",
       actions: [
-        { label: "Channel", href: SOCIAL_LINKS.telegramChannel, external: true },
         { label: "Message me", href: SOCIAL_LINKS.telegramContact, external: true },
       ],
     },
