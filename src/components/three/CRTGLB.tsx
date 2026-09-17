@@ -59,10 +59,10 @@ function Model({ enableShadows }: { enableShadows: boolean }) {
 
 export default function CRTGLB({ className = "" }: { className?: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { isActive } = useCanvasVisibility(containerRef, MODEL_CANVAS_PRELOAD_MARGIN);
+  const { isActive: shouldPreload } = useCanvasVisibility(containerRef, MODEL_CANVAS_PRELOAD_MARGIN);
   const isConstrained = useConstrainedRendering();
   const hasMountedRef = useRef(false);
-  if (isActive) hasMountedRef.current = true;
+  if (shouldPreload) hasMountedRef.current = true;
   const shouldRender = hasMountedRef.current;
   const [isReady, setIsReady] = useState(false);
 
@@ -79,11 +79,11 @@ export default function CRTGLB({ className = "" }: { className?: string }) {
       <Canvas
         camera={{ position: [0, 0, 6], fov: 45 }}
         gl={{ antialias: !isConstrained, alpha: true, toneMapping: THREE.ACESFilmicToneMapping, powerPreference: "high-performance" }}
-        dpr={isConstrained ? 1 : [1, 2]}
+        dpr={isConstrained ? 1 : [1, 1.5]}
         shadows={!isConstrained}
-        frameloop={isActive ? "demand" : "never"}
+        frameloop="demand"
       >
-        <FrameScheduler enabled={isActive} />
+        <FrameScheduler enabled={shouldPreload && !isReady} />
         <ambientLight intensity={0.16} />
         <directionalLight position={[4, 6, 5]} intensity={2.8} castShadow={!isConstrained} />
         <spotLight position={[1, 3, 6]} intensity={3.6} angle={0.38} penumbra={0.7} castShadow={!isConstrained} />
@@ -101,7 +101,7 @@ export default function CRTGLB({ className = "" }: { className?: string }) {
             blur={2.4}
             far={5}
             color="#020202"
-            frames={isConstrained ? 1 : Infinity}
+            frames={1}
             resolution={isConstrained ? 256 : 512}
           />
           <ReadyBeacon onReady={() => setIsReady(true)} />

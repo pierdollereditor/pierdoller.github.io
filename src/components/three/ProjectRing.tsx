@@ -35,7 +35,7 @@ const MOBILE_TILT_X = THREE.MathUtils.degToRad(-5);
 const DESKTOP_CAMERA_OFFSET = 6.8;
 const TABLET_CAMERA_OFFSET = 15.2;
 const MOBILE_CAMERA_OFFSET = 26.5;
-const CARD_VISUAL_SCALE = 1.5;
+const CARD_VISUAL_SCALE = 1.2;
 
 type SnapAnimation = {
   active: boolean;
@@ -151,7 +151,7 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
 
     if (outerRef.current) {
       const targetX = 0;
-      const targetY = mobile ? 2 : tablet ? 0.2 : -0.4;
+      const targetY = mobile ? 1.6 : tablet ? -0.3 : -1.1;
       const tiltX = mobile ? MOBILE_TILT_X : DESKTOP_TILT_X;
       const motionX = Math.max(-1, Math.min(1, state.pointer.x + deviceTilt.x));
       const motionY = Math.max(-1, Math.min(1, state.pointer.y + deviceTilt.y));

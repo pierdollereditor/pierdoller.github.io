@@ -49,6 +49,7 @@ export default function LensingField({ className = "", color = "#8B0A1F" }: { cl
       const bounds = readBounds();
       pointer.targetX = event.clientX - bounds.left;
       pointer.targetY = event.clientY - bounds.top;
+      startLoop();
     };
 
     const shouldRun = () => isVisible && tabVisible;
@@ -88,7 +89,13 @@ export default function LensingField({ className = "", color = "#8B0A1F" }: { cl
         }
         context.stroke();
       }
-      frame = isConstrained ? 0 : requestAnimationFrame(draw);
+      const isMoving = Math.abs(pointer.targetX - pointer.x) > 0.1 || Math.abs(pointer.targetY - pointer.y) > 0.1;
+      if (!isConstrained && isMoving) {
+        frame = requestAnimationFrame(draw);
+      } else {
+        previousFrameTime = 0;
+        frame = 0;
+      }
     };
 
     const startLoop = () => {

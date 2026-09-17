@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import Lenis from "lenis";
 
-const SCROLL_DURATION_SECONDS = 1.35;
+const SCROLL_DURATION_SECONDS = 1.15;
 
 function easeOutCubic(progress: number) {
   return 1 - Math.pow(1 - progress, 3);
@@ -17,7 +17,7 @@ export function useLenis() {
       smoothWheel: true,
       syncTouch: isTouch,
       syncTouchLerp: 0.075,
-      wheelMultiplier: 0.85,
+      wheelMultiplier: 1,
       touchMultiplier: 1.15,
     });
 

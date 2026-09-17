@@ -403,12 +403,12 @@ html.lenis body {
 
 main,
 .cinematic-footer {
-    transition: filter 320ms ease;
+    transition: opacity 480ms ease;
 }
 
 body.menu-open main,
 body.menu-open .cinematic-footer {
-    filter: blur(22px) saturate(0.72);
+    opacity: 0.42;
 }
 
 .header-mega-panel {
@@ -417,13 +417,9 @@ body.menu-open .cinematic-footer {
     box-shadow: 0 32px 70px rgba(0, 0, 0, 0.62);
 }
 
-.header-mega-panel::before {
-    content: "";
+.header-mega-fill {
     position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    inset: 0;
     background:
         radial-gradient(circle at 68% 24%, rgba(139, 10, 31, 0.32), transparent 36%),
         linear-gradient(110deg, #080506 0%, #16050a 54%, #050505 100%);
@@ -983,7 +979,6 @@ body.menu-open .cinematic-footer {
 
 .contact-lensing {
     opacity: 0.18;
-    filter: blur(10px);
     transform: scale(1.04);
 }
 
@@ -1368,7 +1363,6 @@ body.menu-open .cinematic-footer {
         radial-gradient(circle at 20% 58%, rgba(139, 10, 31, 0.34), transparent 28%),
         radial-gradient(circle at 78% 42%, rgba(139, 10, 31, 0.23), transparent 30%),
         linear-gradient(180deg, rgba(5, 5, 5, 0.72), rgba(5, 5, 5, 0.94));
-    filter: blur(16px);
 }
 
 .footer-folders {
@@ -1376,7 +1370,7 @@ body.menu-open .cinematic-footer {
     inset: -24%;
     z-index: -1;
     opacity: 0.24;
-    filter: blur(1.5px) saturate(0.7);
+    filter: none;
     pointer-events: none;
 }
 

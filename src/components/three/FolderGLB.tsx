@@ -102,10 +102,10 @@ function Model({ variant, enableShadows, maxAnisotropy }: { variant: FolderVaria
 
 export default function FolderGLB({ className = "", variant = "default" }: { className?: string; variant?: FolderVariant }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { isActive } = useCanvasVisibility(containerRef, MODEL_CANVAS_PRELOAD_MARGIN);
+  const { isActive: shouldPreload } = useCanvasVisibility(containerRef, MODEL_CANVAS_PRELOAD_MARGIN);
   const isConstrained = useConstrainedRendering();
   const hasMountedRef = useRef(false);
-  if (isActive) hasMountedRef.current = true;
+  if (shouldPreload) hasMountedRef.current = true;
   const shouldRender = hasMountedRef.current;
   const [isReady, setIsReady] = useState(false);
 
@@ -122,11 +122,11 @@ export default function FolderGLB({ className = "", variant = "default" }: { cla
       <Canvas
         camera={{ position: [0, 0, 3], fov: variant === "mobile" ? 22 : 40 }}
         gl={{ antialias: !isConstrained, alpha: true, toneMapping: THREE.ACESFilmicToneMapping, powerPreference: "high-performance" }}
-        dpr={variant === "mobile" || isConstrained ? 1 : [1, 2]}
+        dpr={variant === "mobile" || isConstrained ? 1 : [1, 1.5]}
         shadows={!isConstrained}
-        frameloop={isActive ? "demand" : "never"}
+        frameloop="demand"
       >
-        <FrameScheduler enabled={isActive} />
+        <FrameScheduler enabled={shouldPreload && !isReady} />
         <ambientLight intensity={0.27} />
         <fog attach="fog" args={["#050505", 5.5, 12]} />
         <directionalLight position={[4, 6, 5]} intensity={1.8} castShadow={!isConstrained} />
@@ -154,7 +154,7 @@ export default function FolderGLB({ className = "", variant = "default" }: { cla
             blur={2.2}
             far={4}
             color="#020202"
-            frames={isConstrained ? 1 : Infinity}
+            frames={1}
             resolution={isConstrained ? 256 : 512}
           />
           <ReadyBeacon onReady={() => setIsReady(true)} />

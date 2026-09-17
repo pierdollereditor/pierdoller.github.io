@@ -147,6 +147,13 @@ export default function Header() {
             transition={{ duration: 0.52, ease: [0.76, 0, 0.24, 1] }}
             className="header-mega-panel absolute left-0 right-0 top-0 overflow-hidden border-b border-[#C0BDB3]/15"
           >
+            <motion.div
+              className="header-mega-fill"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+            />
             <LensingField />
             <div className="header-mega-grid mx-auto max-w-[1920px] px-6 py-8 md:px-10 md:py-10">
               <MegaTitle>{activeMenu}</MegaTitle>
