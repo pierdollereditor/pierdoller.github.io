@@ -33,7 +33,9 @@ const MOBILE_TILT_X = THREE.MathUtils.degToRad(-5);
 const DESKTOP_CAMERA_OFFSET = 6.8;
 const TABLET_CAMERA_OFFSET = 15.2;
 const MOBILE_CAMERA_OFFSET = 26.5;
-const CARD_VISUAL_SCALE = 1.2;
+const CARD_VISUAL_SCALE = 1.1;
+const IDLE_DRIFT_SPEED = THREE.MathUtils.degToRad(2.2);
+const MAX_FRAME_DELTA_SECONDS = 1 / 30;
 
 type SnapAnimation = {
   active: boolean;
@@ -42,6 +44,11 @@ type SnapAnimation = {
   elapsed: number;
   duration: number;
 };
+
+function getClosestRotationTarget(current: number, target: number) {
+  const fullTurn = Math.PI * 2;
+  return target + Math.round((current - target) / fullTurn) * fullTurn;
+}
 
 function createCurvedPanelGeometry() {
   const positions: number[] = [];
@@ -120,7 +127,7 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
   };
 
   useEffect(() => {
-    startSnap(-position * CARD_ANGLE);
+    startSnap(getClosestRotationTarget(currentRotation.current, -position * CARD_ANGLE));
   }, [position, snapDuration]);
 
   useEffect(() => {
@@ -135,11 +142,12 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
   }, [geometry]);
 
   useFrame((state, delta) => {
+    const frameDelta = Math.min(delta, MAX_FRAME_DELTA_SECONDS);
     const mobile = size.width <= 640;
     const tablet = size.width <= 900;
     const cameraOffset = mobile ? MOBILE_CAMERA_OFFSET : tablet ? TABLET_CAMERA_OFFSET : DESKTOP_CAMERA_OFFSET;
     const cameraTarget = RADIUS + cameraOffset / CARD_VISUAL_SCALE;
-    camera.position.z = THREE.MathUtils.damp(camera.position.z, cameraTarget, 5, delta);
+    camera.position.z = THREE.MathUtils.damp(camera.position.z, cameraTarget, 5, frameDelta);
     if (scene.fog instanceof THREE.Fog) {
       scene.fog.near = mobile ? 34 : tablet ? 18 : 10;
       scene.fog.far = mobile ? 72 : tablet ? 52 : 39;
@@ -147,21 +155,21 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
 
     if (outerRef.current) {
       const targetX = 0;
-      const targetY = mobile ? 1.45 : tablet ? -0.45 : -1.35;
+      const targetY = mobile ? 1.25 : tablet ? -0.65 : -1.6;
       const tiltX = mobile ? MOBILE_TILT_X : DESKTOP_TILT_X;
       const motionX = Math.max(-1, Math.min(1, state.pointer.x + deviceTilt.x));
       const motionY = Math.max(-1, Math.min(1, state.pointer.y + deviceTilt.y));
-      outerRef.current.position.x = THREE.MathUtils.damp(outerRef.current.position.x, targetX, 3, delta);
-      outerRef.current.position.y = THREE.MathUtils.damp(outerRef.current.position.y, targetY, 3, delta);
-      outerRef.current.rotation.x = THREE.MathUtils.damp(outerRef.current.rotation.x, tiltX + motionY * -0.04, 2.5, delta);
-      outerRef.current.rotation.z = THREE.MathUtils.damp(outerRef.current.rotation.z, 0.11 + motionX * -0.025, 2.5, delta);
+      outerRef.current.position.x = THREE.MathUtils.damp(outerRef.current.position.x, targetX, 3, frameDelta);
+      outerRef.current.position.y = THREE.MathUtils.damp(outerRef.current.position.y, targetY, 3, frameDelta);
+      outerRef.current.rotation.x = THREE.MathUtils.damp(outerRef.current.rotation.x, tiltX + motionY * -0.04, 2.5, frameDelta);
+      outerRef.current.rotation.z = THREE.MathUtils.damp(outerRef.current.rotation.z, 0.11 + motionX * -0.025, 2.5, frameDelta);
     }
 
-    pressedScale.current = THREE.MathUtils.damp(pressedScale.current, dragging.current ? 0.94 : 1, 10, delta);
+    pressedScale.current = THREE.MathUtils.damp(pressedScale.current, dragging.current ? 0.94 : 1, 10, frameDelta);
     if (outerRef.current) outerRef.current.scale.setScalar(pressedScale.current);
 
     if (!dragging.current && animation.current.active) {
-      animation.current.elapsed += delta;
+      animation.current.elapsed += frameDelta;
       const progress = Math.min(1, animation.current.elapsed / animation.current.duration);
       const eased = (1 - Math.cos(Math.PI * progress)) / 2;
       currentRotation.current = THREE.MathUtils.lerp(animation.current.from, animation.current.to, eased);
@@ -169,6 +177,8 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
         currentRotation.current = animation.current.to;
         animation.current.active = false;
       }
+    } else if (!dragging.current) {
+      currentRotation.current -= IDLE_DRIFT_SPEED * frameDelta;
     }
 
     if (ringRef.current) ringRef.current.rotation.y = currentRotation.current;
@@ -199,7 +209,10 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
       : position;
     dragging.current = false;
     onPositionChange(targetPosition);
-    startSnap(-targetPosition * CARD_ANGLE, DRAG_SNAP_DURATION_SECONDS);
+    startSnap(
+      getClosestRotationTarget(currentRotation.current, -targetPosition * CARD_ANGLE),
+      DRAG_SNAP_DURATION_SECONDS,
+    );
     const target = event.target as EventTarget & { releasePointerCapture?: (pointerId: number) => void };
     target?.releasePointerCapture?.(event.pointerId);
   };

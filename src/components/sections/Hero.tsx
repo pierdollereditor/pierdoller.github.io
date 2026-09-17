@@ -1,8 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { WORKS } from "../../data/works";
+import { useCanvasVisibility } from "../../hooks/useCanvasVisibility";
 import ProjectRing from "../three/ProjectRing";
 import LensingField from "../LensingField";
 
@@ -16,6 +17,8 @@ function modulo(value: number, divisor: number) {
 }
 
 export default function Hero() {
+  const heroRef = useRef<HTMLElement>(null);
+  const { isActive: isHeroActive } = useCanvasVisibility(heroRef, "0px");
   const [position, setPosition] = useState(0);
   const [visiblePosition, setVisiblePosition] = useState(0);
   const [snapDuration, setSnapDuration] = useState(AUTO_SNAP_DURATION_SECONDS);
@@ -31,12 +34,13 @@ export default function Hero() {
   }, [position, snapDuration]);
 
   useEffect(() => {
+    if (!isHeroActive) return;
     const timer = window.setTimeout(() => {
       setSnapDuration(AUTO_SNAP_DURATION_SECONDS);
       setPosition((current) => current + 1);
     }, AUTOPLAY_DELAY_MS);
     return () => window.clearTimeout(timer);
-  }, [position]);
+  }, [isHeroActive, position]);
 
   const moveToIndex = (index: number) => {
     const currentIndex = modulo(position, WORKS.length);
@@ -59,6 +63,7 @@ export default function Hero() {
 
   return (
     <section
+      ref={heroRef}
       id="hero"
       className="ape-hero"
       style={{ "--hero-accent": activeWork.accent, "--hero-backdrop": activeWork.backdrop } as React.CSSProperties}

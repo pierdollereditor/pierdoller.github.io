@@ -592,15 +592,6 @@ body.menu-open .cinematic-footer {
     pointer-events: none;
 }
 
-.ape-project-copy::before {
-    content: "";
-    position: absolute;
-    inset: -24px -72px -20px -28px;
-    z-index: -1;
-    background: linear-gradient(90deg, rgba(5, 5, 5, 0.9), rgba(5, 5, 5, 0.68) 58%, transparent 100%);
-    pointer-events: none;
-}
-
 .ape-project-meta {
     display: flex;
     align-items: center;
@@ -611,6 +602,7 @@ body.menu-open .cinematic-footer {
     font-weight: 700;
     letter-spacing: 0.16em;
     text-transform: uppercase;
+    text-shadow: 0 1px 3px #050505, 0 0 14px #050505;
 }
 
 .ape-project-meta i {
@@ -623,7 +615,7 @@ body.menu-open .cinematic-footer {
 .ape-project-meta span {
     padding: 5px 8px;
     border-radius: 3px;
-    background: rgba(192, 189, 179, 0.18);
+    background: rgba(5, 5, 5, 0.68);
     font-size: 13px;
 }
 
@@ -634,7 +626,8 @@ body.menu-open .cinematic-footer {
     line-height: 0.96;
     letter-spacing: 0.012em;
     text-transform: uppercase;
-    text-shadow: 0 4px 24px rgba(0, 0, 0, 0.72);
+    -webkit-text-stroke: 0.45px rgba(5, 5, 5, 0.72);
+    text-shadow: 0 2px 3px #050505, 0 0 18px rgba(5, 5, 5, 0.94), 0 6px 30px rgba(5, 5, 5, 0.72);
 }
 
 .ape-project-copy p {
@@ -643,6 +636,7 @@ body.menu-open .cinematic-footer {
     font-size: 13px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    text-shadow: 0 1px 3px #050505, 0 0 14px #050505;
 }
 
 .ape-project-copy a {
@@ -1374,19 +1368,22 @@ body.menu-open .cinematic-footer {
         linear-gradient(180deg, rgba(5, 5, 5, 0.72), rgba(5, 5, 5, 0.94));
 }
 
-.footer-folders {
+.footer-backdrop {
     position: absolute;
-    inset: -24%;
-    z-index: -1;
-    opacity: 0.24;
-    filter: none;
+    inset: 0;
+    z-index: -3;
+    background: url("/images/bg-approach.webp") center / cover no-repeat;
+    opacity: 0.32;
     pointer-events: none;
 }
 
-@media (pointer: coarse) {
-    .footer-folders {
-        filter: none;
-    }
+.footer-collage {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
 }
 
 .footer-topline,

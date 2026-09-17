@@ -2,7 +2,7 @@
 
 import { useRef, type PointerEvent as ReactPointerEvent } from "react";
 import { SOCIAL_LINKS } from "../data/socialLinks";
-import FolderGLB from "./three/FolderGLB";
+import FooterCollage from "./FooterCollage";
 
 const WORDMARK = "PIERDOLLER";
 
@@ -74,7 +74,8 @@ export default function Footer() {
   return (
     <footer id="socials" className="cinematic-footer">
       <div className="footer-fog" aria-hidden="true" />
-      <FolderGLB className="footer-folders" variant="footer" />
+      <div className="footer-backdrop" aria-hidden="true" />
+      <FooterCollage />
 
       <div className="footer-topline">
         <div className="footer-socials">
