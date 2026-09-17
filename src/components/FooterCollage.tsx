@@ -6,13 +6,14 @@ import { WORKS } from "../data/works";
 const MAX_DPR = 1.25;
 const POINTER_EASING = 0.08;
 const SETTLE_THRESHOLD = 0.001;
+const CARD_BLUR = "blur(2.5px)";
 
 const CARD_LAYOUT = [
-  { x: 0.08, y: 0.2, rotation: -0.13, depth: 0.55 },
-  { x: 0.29, y: 0.53, rotation: 0.08, depth: 0.9 },
-  { x: 0.52, y: 0.22, rotation: -0.06, depth: 0.7 },
-  { x: 0.76, y: 0.52, rotation: 0.12, depth: 1 },
-  { x: 0.45, y: 0.76, rotation: -0.04, depth: 0.4 },
+  { x: 0.01, y: 0.18, rotation: -0.13, depth: 0.55 },
+  { x: 0.12, y: 0.68, rotation: 0.08, depth: 0.9 },
+  { x: 0.84, y: 0.16, rotation: -0.06, depth: 0.7 },
+  { x: 0.99, y: 0.55, rotation: 0.12, depth: 1 },
+  { x: 0.84, y: 0.82, rotation: -0.04, depth: 0.4 },
 ] as const;
 
 export default function FooterCollage() {
@@ -67,8 +68,10 @@ export default function FooterCollage() {
         context.beginPath();
         context.roundRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 4);
         context.clip();
-        context.globalAlpha = compact ? 0.16 : 0.22;
+        context.globalAlpha = compact ? 0.14 : 0.19;
+        context.filter = CARD_BLUR;
         drawCover(image, cardWidth, cardHeight);
+        context.filter = "none";
         context.fillStyle = "rgba(5, 5, 5, 0.28)";
         context.fillRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight);
         context.restore();

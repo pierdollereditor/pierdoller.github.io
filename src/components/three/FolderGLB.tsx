@@ -1,17 +1,22 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { ContactShadows, Environment, Float, useGLTF } from "@react-three/drei";
+import { ContactShadows, Environment, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { deviceTilt } from "../../hooks/useDeviceTilt";
-import { MODEL_CANVAS_PRELOAD_MARGIN, useCanvasVisibility } from "../../hooks/useCanvasVisibility";
+import { MODEL_CANVAS_INTERACTION_MARGIN, MODEL_CANVAS_PRELOAD_MARGIN, useCanvasVisibility } from "../../hooks/useCanvasVisibility";
 import { useConstrainedRendering } from "../../hooks/useConstrainedRendering";
 import FrameScheduler from "./FrameScheduler";
+import StaticShadows from "./StaticShadows";
 
 type FolderVariant = "default" | "footer" | "mobile";
 
-function Model({ variant, enableShadows, maxAnisotropy }: { variant: FolderVariant; enableShadows: boolean; maxAnisotropy: number }) {
+const POINTER_DAMPING = 6;
+const MOTION_THRESHOLD = 0.0005;
+const MAX_FRAME_DELTA_SECONDS = 1 / 30;
+
+function Model({ variant, enableShadows, maxAnisotropy, interactive }: { variant: FolderVariant; enableShadows: boolean; maxAnisotropy: number; interactive: boolean }) {
   const { scene } = useGLTF("/models/worm_dossier_m.e.g_game_ready.glb");
-  const { gl } = useThree();
+  const { gl, invalidate } = useThree();
   const models = useMemo(() => {
     return Array.from({ length: 6 }, () => {
       const model = scene.clone(true);
@@ -62,26 +67,43 @@ function Model({ variant, enableShadows, maxAnisotropy }: { variant: FolderVaria
     : fullScene;
 
   useEffect(() => {
+    if (!interactive) return;
     const updatePointer = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse") return;
       pointer.current.x = event.clientX / window.innerWidth * 2 - 1;
       pointer.current.y = -(event.clientY / window.innerHeight * 2 - 1);
+      invalidate();
     };
     window.addEventListener("pointermove", updatePointer, { passive: true });
     return () => window.removeEventListener("pointermove", updatePointer);
-  }, []);
+  }, [interactive, invalidate]);
 
   useFrame((state, delta) => {
+    if (!interactive) return;
+    const frameDelta = Math.min(delta, MAX_FRAME_DELTA_SECONDS);
+    let isMoving = false;
     refs.current.forEach((folder, index) => {
       if (!folder) return;
       const config = folders[index];
       const depthFactor = Math.max(0.35, 1 + config.position[2] * 0.08);
       const inputX = Math.max(-1, Math.min(1, pointer.current.x + deviceTilt.x));
       const inputY = Math.max(-1, Math.min(1, pointer.current.y + deviceTilt.y));
-      folder.rotation.y = THREE.MathUtils.damp(folder.rotation.y, config.rotation[1] + inputX * config.response * depthFactor, 3.4, delta);
-      folder.rotation.x = THREE.MathUtils.damp(folder.rotation.x, config.rotation[0] - inputY * config.response * 0.7, 3.4, delta);
-      folder.rotation.z = THREE.MathUtils.damp(folder.rotation.z, config.rotation[2] + inputX * config.response * 0.18, 3.4, delta);
-      folder.position.y = config.position[1] + Math.sin(state.clock.elapsedTime * (0.24 + index * 0.025) + index) * 0.08;
+      const targetRotationY = config.rotation[1] + inputX * config.response * depthFactor;
+      const targetRotationX = config.rotation[0] - inputY * config.response * 0.7;
+      const targetRotationZ = config.rotation[2] + inputX * config.response * 0.18;
+      const targetX = config.position[0] + inputX * config.response * 0.18;
+      const targetY = config.position[1] + inputY * config.response * 0.12;
+      folder.rotation.y = THREE.MathUtils.damp(folder.rotation.y, targetRotationY, POINTER_DAMPING, frameDelta);
+      folder.rotation.x = THREE.MathUtils.damp(folder.rotation.x, targetRotationX, POINTER_DAMPING, frameDelta);
+      folder.rotation.z = THREE.MathUtils.damp(folder.rotation.z, targetRotationZ, POINTER_DAMPING, frameDelta);
+      folder.position.x = THREE.MathUtils.damp(folder.position.x, targetX, POINTER_DAMPING, frameDelta);
+      folder.position.y = THREE.MathUtils.damp(folder.position.y, targetY, POINTER_DAMPING, frameDelta);
+      isMoving ||= Math.abs(folder.rotation.y - targetRotationY) > MOTION_THRESHOLD
+        || Math.abs(folder.rotation.x - targetRotationX) > MOTION_THRESHOLD
+        || Math.abs(folder.position.x - targetX) > MOTION_THRESHOLD
+        || Math.abs(folder.position.y - targetY) > MOTION_THRESHOLD;
     });
+    if (isMoving) state.invalidate();
   });
 
   return (
@@ -103,6 +125,7 @@ function Model({ variant, enableShadows, maxAnisotropy }: { variant: FolderVaria
 export default function FolderGLB({ className = "", variant = "default" }: { className?: string; variant?: FolderVariant }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { isActive: shouldPreload } = useCanvasVisibility(containerRef, MODEL_CANVAS_PRELOAD_MARGIN);
+  const { isActive: isInteractive } = useCanvasVisibility(containerRef, MODEL_CANVAS_INTERACTION_MARGIN);
   const isConstrained = useConstrainedRendering();
   const hasMountedRef = useRef(false);
   if (shouldPreload) hasMountedRef.current = true;
@@ -122,11 +145,12 @@ export default function FolderGLB({ className = "", variant = "default" }: { cla
       <Canvas
         camera={{ position: [0, 0, 3], fov: variant === "mobile" ? 22 : 40 }}
         gl={{ antialias: !isConstrained, alpha: true, toneMapping: THREE.ACESFilmicToneMapping, powerPreference: "high-performance" }}
-        dpr={variant === "mobile" || isConstrained ? 1 : [1, 1.5]}
+        dpr={variant === "mobile" || isConstrained ? 1 : [1, 1.25]}
         shadows={!isConstrained}
         frameloop="demand"
       >
         <FrameScheduler enabled={shouldPreload && !isReady} />
+        <StaticShadows enabled={!isConstrained} />
         <ambientLight intensity={0.27} />
         <fog attach="fog" args={["#050505", 5.5, 12]} />
         <directionalLight position={[4, 6, 5]} intensity={1.8} castShadow={!isConstrained} />
@@ -144,9 +168,7 @@ export default function FolderGLB({ className = "", variant = "default" }: { cla
         />
         <Environment preset="warehouse" environmentIntensity={0.58} />
         <Suspense fallback={null}>
-          <Float speed={0.65} rotationIntensity={0.08} floatIntensity={0.16}>
-            <Model variant={variant} enableShadows={!isConstrained} maxAnisotropy={isConstrained ? 4 : 8} />
-          </Float>
+          <Model variant={variant} enableShadows={!isConstrained} maxAnisotropy={isConstrained ? 4 : 8} interactive={isInteractive} />
           <ContactShadows
             position={[0, -1.55, 0]}
             opacity={0.7}

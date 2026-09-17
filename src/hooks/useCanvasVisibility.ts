@@ -52,3 +52,4 @@ export function useCanvasVisibility(
 }
 
 export const MODEL_CANVAS_PRELOAD_MARGIN = "1600px";
+export const MODEL_CANVAS_INTERACTION_MARGIN = "120px";
