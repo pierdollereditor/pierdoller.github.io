@@ -7,8 +7,8 @@ import ProjectRing from "../three/ProjectRing";
 import LensingField from "../LensingField";
 
 const AUTOPLAY_DELAY_MS = 4500;
-const AUTO_SNAP_DURATION_SECONDS = 0.95;
-const MANUAL_SNAP_DURATION_SECONDS = 0.7;
+const AUTO_SNAP_DURATION_SECONDS = 1.3;
+const MANUAL_SNAP_DURATION_SECONDS = 1;
 
 function modulo(value: number, divisor: number) {
   return ((value % divisor) + divisor) % divisor;
@@ -76,7 +76,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -14 }}
-          transition={{ duration: 0.48, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="ape-project-copy"
         >
           <div className="ape-project-meta"><i /> Featured <span>{activeWork.category}</span></div>

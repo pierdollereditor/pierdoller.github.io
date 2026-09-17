@@ -17,9 +17,10 @@ const BASE_RADIUS = 20;
 const BASE_PANEL_ARC = Math.PI * 0.21;
 const PANEL_WIDTH = BASE_RADIUS * BASE_PANEL_ARC;
 const CARD_ANGLE = (Math.PI * 2) / WORKS.length;
-const MAX_PANEL_GAP = THREE.MathUtils.degToRad(7);
-const MAX_PANEL_ARC = THREE.MathUtils.degToRad(66);
-const PANEL_GAP = Math.min(MAX_PANEL_GAP, CARD_ANGLE * 0.12);
+const MIN_RING_RADIUS = 15.5;
+const MAX_PANEL_GAP = THREE.MathUtils.degToRad(18);
+const PANEL_GAP = Math.min(MAX_PANEL_GAP, CARD_ANGLE * 0.25);
+const MAX_PANEL_ARC = PANEL_WIDTH / MIN_RING_RADIUS;
 const PANEL_ARC = Math.min(MAX_PANEL_ARC, CARD_ANGLE - PANEL_GAP);
 const RADIUS = PANEL_WIDTH / PANEL_ARC;
 const PANEL_HEIGHT = PANEL_WIDTH / (21 / 9);
@@ -27,8 +28,8 @@ const PANEL_SEGMENTS = 48;
 const DRAG_SNAP_DURATION_SECONDS = 0.7;
 const DRAG_THRESHOLD_PX = 36;
 const MAX_DRAG_ANGLE = THREE.MathUtils.degToRad(18);
-const IDLE_DRIFT_SPEED = THREE.MathUtils.degToRad(1.7);
-const MAX_IDLE_DRIFT = THREE.MathUtils.degToRad(12);
+const IDLE_DRIFT_SPEED = THREE.MathUtils.degToRad(0.2);
+const MAX_IDLE_DRIFT = THREE.MathUtils.degToRad(1);
 const DESKTOP_TILT_X = THREE.MathUtils.degToRad(-8);
 const MOBILE_TILT_X = THREE.MathUtils.degToRad(-5);
 const DESKTOP_CAMERA_OFFSET = 6.8;
@@ -147,15 +148,15 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
     }
 
     if (outerRef.current) {
-      const targetX = mobile ? 0 : tablet ? 0.4 : 0.8;
-      const targetY = mobile ? 1.2 : tablet ? -1.35 : -2.55;
+      const targetX = 0;
+      const targetY = mobile ? 1.2 : tablet ? -0.8 : -1.8;
       const tiltX = mobile ? MOBILE_TILT_X : DESKTOP_TILT_X;
       const motionX = Math.max(-1, Math.min(1, state.pointer.x + deviceTilt.x));
       const motionY = Math.max(-1, Math.min(1, state.pointer.y + deviceTilt.y));
-      outerRef.current.position.x = THREE.MathUtils.damp(outerRef.current.position.x, targetX, 5, delta);
-      outerRef.current.position.y = THREE.MathUtils.damp(outerRef.current.position.y, targetY, 5, delta);
-      outerRef.current.rotation.x = THREE.MathUtils.damp(outerRef.current.rotation.x, tiltX + motionY * -0.04, 4, delta);
-      outerRef.current.rotation.z = THREE.MathUtils.damp(outerRef.current.rotation.z, 0.11 + motionX * -0.025, 4, delta);
+      outerRef.current.position.x = THREE.MathUtils.damp(outerRef.current.position.x, targetX, 3, delta);
+      outerRef.current.position.y = THREE.MathUtils.damp(outerRef.current.position.y, targetY, 3, delta);
+      outerRef.current.rotation.x = THREE.MathUtils.damp(outerRef.current.rotation.x, tiltX + motionY * -0.04, 2.5, delta);
+      outerRef.current.rotation.z = THREE.MathUtils.damp(outerRef.current.rotation.z, 0.11 + motionX * -0.025, 2.5, delta);
     }
 
     pressedScale.current = THREE.MathUtils.damp(pressedScale.current, dragging.current ? 0.94 : 1, 10, delta);
@@ -164,11 +165,7 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
     if (!dragging.current && animation.current.active) {
       animation.current.elapsed += delta;
       const progress = Math.min(1, animation.current.elapsed / animation.current.duration);
-      const eased = animation.current.duration <= 1
-        ? 1 - Math.pow(1 - progress, 3)
-        : progress < 0.68
-          ? (progress / 0.68) * 0.2
-          : 0.2 + 0.8 * (1 - Math.pow(1 - (progress - 0.68) / 0.32, 3));
+      const eased = progress * progress * progress * (progress * (progress * 6 - 15) + 10);
       currentRotation.current = THREE.MathUtils.lerp(animation.current.from, animation.current.to, eased);
       if (progress === 1) {
         currentRotation.current = animation.current.to;
