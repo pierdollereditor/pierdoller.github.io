@@ -3,10 +3,12 @@ import { useState, type CSSProperties } from "react";
 import FolderGLB from "../three/FolderGLB";
 import { CONTENT } from "../../data/content";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
+import { useLowPowerRendering } from "../../hooks/useConstrainedRendering";
 
 export default function Manifesto() {
   const t = CONTENT.manifesto;
   const isDesktop = useMediaQuery("(min-width: 1024px)");
+  const isLowPower = useLowPowerRendering();
 
   return (
     <section
@@ -20,18 +22,18 @@ export default function Manifesto() {
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 1 }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 0.7 }}
             className="model-stage absolute inset-[-9%] h-[118%] w-[118%] pointer-events-none opacity-75"
           >
             <FolderGLB className="w-full h-full" />
           </motion.div>
         ) : (
           <motion.div
-            initial={{ opacity: 0, scale: 0.88 }}
-            whileInView={{ opacity: 0.9, scale: 1 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.9 }}
+            initial={isLowPower ? { opacity: 0 } : { opacity: 0, scale: 0.88 }}
+            whileInView={isLowPower ? { opacity: 0.9 } : { opacity: 0.9, scale: 1 }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: isLowPower ? 0.25 : 0.6 }}
             className="approach-mobile-folder pointer-events-none"
           >
             <FolderGLB className="w-full h-full" variant="mobile" />
@@ -66,8 +68,8 @@ export default function Manifesto() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.2 }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
             className="mt-6 md:mt-8 space-y-4 md:space-y-5 font-mono text-[13px] md:text-[14px] leading-[1.6] md:leading-[1.85] text-[#C0BDB3] break-words"
           >
             <p>

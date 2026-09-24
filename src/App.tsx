@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useLenis } from "./hooks/useLenis";
 import Header from "./components/Header";
 import GrainOverlay from "./components/GrainOverlay";
@@ -15,6 +16,7 @@ import { useDeviceTilt } from "./hooks/useDeviceTilt";
 import { useStableViewport } from "./hooks/useStableViewport";
 
 export default function App() {
+  const [menuOpen, setMenuOpen] = useState(false);
   useLenis();
   useDeviceTilt();
   useStableViewport();
@@ -24,7 +26,7 @@ export default function App() {
       <LoadingScreen />
       <GrainOverlay />
       <CustomCursor />
-      <Header />
+      <Header onOpenChange={setMenuOpen} />
 
       <main>
         <Hero />

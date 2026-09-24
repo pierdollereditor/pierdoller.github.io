@@ -4,26 +4,24 @@ import { ContactShadows, Environment, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { deviceTilt } from "../../hooks/useDeviceTilt";
 import { MODEL_CANVAS_INTERACTION_MARGIN, MODEL_CANVAS_PRELOAD_MARGIN, useCanvasVisibility } from "../../hooks/useCanvasVisibility";
-import { useConstrainedRendering } from "../../hooks/useConstrainedRendering";
+import { useConstrainedRendering, useLowPowerRendering } from "../../hooks/useConstrainedRendering";
 import FrameScheduler from "./FrameScheduler";
-import StaticShadows from "./StaticShadows";
 
 type FolderVariant = "default" | "footer" | "mobile";
 
-const POINTER_DAMPING = 6;
+const POINTER_DAMPING = 14;
 const MOTION_THRESHOLD = 0.0005;
 const MAX_FRAME_DELTA_SECONDS = 1 / 30;
 
-function Model({ variant, enableShadows, maxAnisotropy, interactive }: { variant: FolderVariant; enableShadows: boolean; maxAnisotropy: number; interactive: boolean }) {
+function Model({ variant, maxAnisotropy, interactive }: { variant: FolderVariant; maxAnisotropy: number; interactive: boolean }) {
   const { scene } = useGLTF("/models/worm_dossier_m.e.g_game_ready.glb");
   const { gl, invalidate } = useThree();
   const models = useMemo(() => {
-    return Array.from({ length: 6 }, () => {
+    const modelCount = variant === "mobile" ? 1 : 6;
+    return Array.from({ length: modelCount }, () => {
       const model = scene.clone(true);
       model.traverse((child) => {
         if (!(child instanceof THREE.Mesh)) return;
-        child.castShadow = enableShadows;
-        child.receiveShadow = enableShadows;
         const materials = Array.isArray(child.material) ? child.material : [child.material];
         materials.forEach((material) => {
           if (material instanceof THREE.MeshStandardMaterial) {
@@ -43,7 +41,7 @@ function Model({ variant, enableShadows, maxAnisotropy, interactive }: { variant
       });
       return model;
     });
-  }, [enableShadows, gl, maxAnisotropy, scene]);
+  }, [gl, maxAnisotropy, scene, variant]);
 
   const refs = useRef<Array<THREE.Group | null>>([]);
   const pointer = useRef({ x: 0, y: 0 });
@@ -124,13 +122,15 @@ function Model({ variant, enableShadows, maxAnisotropy, interactive }: { variant
 
 export default function FolderGLB({ className = "", variant = "default" }: { className?: string; variant?: FolderVariant }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { isActive: shouldPreload } = useCanvasVisibility(containerRef, MODEL_CANVAS_PRELOAD_MARGIN);
+  const { isInView: shouldPreload } = useCanvasVisibility(containerRef, MODEL_CANVAS_PRELOAD_MARGIN);
   const { isActive: isInteractive } = useCanvasVisibility(containerRef, MODEL_CANVAS_INTERACTION_MARGIN);
   const isConstrained = useConstrainedRendering();
-  const hasMountedRef = useRef(false);
-  if (shouldPreload) hasMountedRef.current = true;
-  const shouldRender = hasMountedRef.current;
+  const isLowPower = useLowPowerRendering();
   const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    if (!shouldPreload) setIsReady(false);
+  }, [shouldPreload]);
 
   return (
     <div
@@ -138,38 +138,30 @@ export default function FolderGLB({ className = "", variant = "default" }: { cla
       className={className}
       style={{
         opacity: isReady ? 1 : 0,
-        transition: "opacity 700ms ease-out",
+        transition: `opacity ${isLowPower ? 250 : 700}ms ease-out`,
       }}
     >
-      {shouldRender && (
+      {shouldPreload && (
       <Canvas
         camera={{ position: [0, 0, 3], fov: variant === "mobile" ? 22 : 40 }}
-        gl={{ antialias: !isConstrained, alpha: true, toneMapping: THREE.ACESFilmicToneMapping, powerPreference: "high-performance" }}
-        dpr={variant === "mobile" || isConstrained ? 1 : [1, 1.25]}
-        shadows={!isConstrained}
+        gl={{ antialias: true, alpha: true, toneMapping: THREE.ACESFilmicToneMapping, powerPreference: "high-performance" }}
+        dpr={variant === "mobile" ? [1, 1.5] : [1, 1.25]}
         frameloop="demand"
+        onCreated={({ gl }) => { gl.toneMappingExposure = 1.12; }}
       >
         <FrameScheduler enabled={shouldPreload && !isReady} />
-        <StaticShadows enabled={!isConstrained} />
-        <ambientLight intensity={0.27} />
+        <ambientLight intensity={0.38} />
         <fog attach="fog" args={["#050505", 5.5, 12]} />
-        <directionalLight position={[4, 6, 5]} intensity={1.8} castShadow={!isConstrained} />
+        <directionalLight position={[4, 6, 5]} intensity={1.8} />
         <directionalLight
           position={[-5, 1, -3]}
           intensity={1.25}
           color="#8B0A1F"
         />
-        <spotLight
-          position={[-1, 3, 5]}
-          intensity={2}
-          angle={0.42}
-          penumbra={0.75}
-          castShadow={!isConstrained}
-        />
-        <Environment preset="warehouse" environmentIntensity={0.58} />
+        {!isLowPower && <Environment preset="warehouse" environmentIntensity={0.7} />}
         <Suspense fallback={null}>
-          <Model variant={variant} enableShadows={!isConstrained} maxAnisotropy={isConstrained ? 4 : 8} interactive={isInteractive} />
-          <ContactShadows
+          <Model variant={variant} maxAnisotropy={4} interactive={isInteractive && !isLowPower} />
+          {!isLowPower && <ContactShadows
             position={[0, -1.55, 0]}
             opacity={0.7}
             scale={7}
@@ -177,8 +169,8 @@ export default function FolderGLB({ className = "", variant = "default" }: { cla
             far={4}
             color="#020202"
             frames={1}
-            resolution={isConstrained ? 256 : 512}
-          />
+            resolution={isConstrained ? 256 : 384}
+          />}
           <ReadyBeacon onReady={() => setIsReady(true)} />
         </Suspense>
       </Canvas>

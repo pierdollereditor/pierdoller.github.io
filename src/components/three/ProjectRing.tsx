@@ -1,40 +1,47 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useRef } from "react";
-import { Canvas, type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { WORKS } from "../../data/works";
-import { deviceTilt } from "../../hooks/useDeviceTilt";
-import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { useCanvasVisibility } from "../../hooks/useCanvasVisibility";
-import { useConstrainedRendering } from "../../hooks/useConstrainedRendering";
-import FrameScheduler from "./FrameScheduler";
-
-useTexture.preload(Array.from(new Set(WORKS.map((work) => work.poster))));
+import { useConstrainedRendering, useLowPowerRendering } from "../../hooks/useConstrainedRendering";
 
 const BASE_RADIUS = 20;
 const BASE_PANEL_ARC = Math.PI * 0.21;
 const PANEL_WIDTH = BASE_RADIUS * BASE_PANEL_ARC;
+const PANEL_ASPECT_RATIO = 21 / 9;
 const CARD_ANGLE = (Math.PI * 2) / WORKS.length;
-const MIN_RING_RADIUS = 15.5;
-const MAX_PANEL_GAP = THREE.MathUtils.degToRad(18);
+const MAX_PANEL_GAP = THREE.MathUtils.degToRad(14);
 const PANEL_GAP = Math.min(MAX_PANEL_GAP, CARD_ANGLE * 0.25);
-const MAX_PANEL_ARC = PANEL_WIDTH / MIN_RING_RADIUS;
-const PANEL_ARC = Math.min(MAX_PANEL_ARC, CARD_ANGLE - PANEL_GAP);
+const PANEL_ARC = CARD_ANGLE - PANEL_GAP;
 const RADIUS = PANEL_WIDTH / PANEL_ARC;
-const PANEL_HEIGHT = PANEL_WIDTH / (21 / 9);
-const PANEL_SEGMENTS = 48;
-const DRAG_SNAP_DURATION_SECONDS = 0.7;
-const DRAG_THRESHOLD_PX = 36;
-const MAX_DRAG_ANGLE = THREE.MathUtils.degToRad(18);
-const DESKTOP_TILT_X = THREE.MathUtils.degToRad(-8);
-const MOBILE_TILT_X = THREE.MathUtils.degToRad(-5);
-const DESKTOP_CAMERA_OFFSET = 6.8;
-const TABLET_CAMERA_OFFSET = 15.2;
-const MOBILE_CAMERA_OFFSET = 26.5;
-const CARD_VISUAL_SCALE = 1.1;
+const PANEL_HEIGHT = PANEL_WIDTH / PANEL_ASPECT_RATIO;
+const PANEL_SEGMENTS = 64;
+const CAMERA_FOV_DEGREES = 50;
+const DESKTOP_CAMERA_FIT_PADDING = 0.82;
+const TABLET_CAMERA_FIT_PADDING = 1.12;
+const MOBILE_CAMERA_FIT_PADDING = 1.2;
+const DESKTOP_MAX_PIXEL_RATIO = 2;
+const CONSTRAINED_MAX_PIXEL_RATIO = 1.5;
+const LOW_POWER_MAX_PIXEL_RATIO = 1.2;
+const DESKTOP_DRAG_RETURN_DURATION_SECONDS = 0.8;
+const MOBILE_DRAG_RETURN_DURATION_SECONDS = 0.6;
+const MOBILE_MIN_SNAP_DURATION_SECONDS = 0.85;
+const DESKTOP_DRAG_THRESHOLD_PX = 60;
+const MOBILE_DRAG_THRESHOLD_PX = 56;
+const DESKTOP_DRAG_ROTATION_DISTANCE_PX = 200;
+const MOBILE_DRAG_ROTATION_DISTANCE_PX = 210;
+const DESKTOP_DRAG_FOLLOW_DAMPING = 30;
+const MOBILE_DRAG_FOLLOW_DAMPING = 24;
+const DRAG_RUBBER_BAND_EXTRA = 0.02;
+const MAX_DRAG_ANGLE = CARD_ANGLE / 3;
 const IDLE_DRIFT_SPEED = THREE.MathUtils.degToRad(2.2);
+const DESKTOP_TILT_X = THREE.MathUtils.degToRad(-14);
+const MOBILE_TILT_X = THREE.MathUtils.degToRad(-5);
+const DESKTOP_RING_SCALE = 1.66;
+const TABLET_RING_SCALE = 1.1;
 const MAX_FRAME_DELTA_SECONDS = 1 / 30;
 
 type SnapAnimation = {
@@ -48,6 +55,18 @@ type SnapAnimation = {
 function getClosestRotationTarget(current: number, target: number) {
   const fullTurn = Math.PI * 2;
   return target + Math.round((current - target) / fullTurn) * fullTurn;
+}
+
+function easeInOutSine(progress: number) {
+  return (1 - Math.cos(Math.PI * progress)) / 2;
+}
+
+function rubberBandAngle(value: number, limit: number, extra: number) {
+  const magnitude = Math.abs(value);
+  if (magnitude <= limit) return value;
+  const overflow = magnitude - limit;
+  const stretched = extra * (1 - Math.exp(-overflow / (limit * 0.4)));
+  return (value < 0 ? -1 : 1) * (limit + stretched);
 }
 
 function createCurvedPanelGeometry() {
@@ -81,40 +100,55 @@ function createCurvedPanelGeometry() {
   return geometry;
 }
 
-export default function ProjectRing({ position, snapDuration, fogColor, onPositionChange }: { position: number; snapDuration: number; fogColor: string; onPositionChange: (position: number) => void }) {
-  const isMobile = useMediaQuery("(max-width: 640px)");
-  const isConstrained = useConstrainedRendering();
+export default function ProjectRing({ active, position, snapDuration, fogColor, onPositionChange, onDragChange }: { active: boolean; position: number; snapDuration: number; fogColor: string; onPositionChange: (position: number) => void; onDragChange?: (dragging: boolean) => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { isActive } = useCanvasVisibility(containerRef, "200px");
+  const { isInView: shouldRender } = useCanvasVisibility(containerRef, "800px");
+  const isConstrained = useConstrainedRendering();
+  const isLowPower = useLowPowerRendering();
+  const maxPixelRatio = isLowPower
+    ? LOW_POWER_MAX_PIXEL_RATIO
+    : isConstrained
+      ? CONSTRAINED_MAX_PIXEL_RATIO
+      : DESKTOP_MAX_PIXEL_RATIO;
 
   return (
     <div ref={containerRef} className="ape-ring-canvas" aria-hidden="true">
+      {shouldRender && (
       <Canvas
-        camera={{ position: [0, 0, 18], fov: 50, near: 0.1, far: 100 }}
-        dpr={isMobile || isConstrained ? 1 : [1, 1.5]}
-        gl={{ antialias: !isMobile && !isConstrained, alpha: true, powerPreference: "high-performance" }}
-        frameloop={isActive ? "demand" : "never"}
+        camera={{ position: [0, 0, 18], fov: CAMERA_FOV_DEGREES, near: 0.1, far: 100 }}
+        dpr={[1, maxPixelRatio]}
+        gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+        frameloop={active ? "always" : "never"}
       >
-        <FrameScheduler enabled={isActive} />
         <Suspense fallback={null}>
-          <Ring position={position} snapDuration={snapDuration} fogColor={fogColor} onPositionChange={onPositionChange} />
+          <Ring
+            active={active}
+            position={position}
+            snapDuration={snapDuration}
+            fogColor={fogColor}
+            maxAnisotropy={8}
+            useMobileTextures={isConstrained}
+            onPositionChange={onPositionChange}
+            onDragChange={onDragChange}
+          />
         </Suspense>
       </Canvas>
+      )}
     </div>
   );
 }
 
-function Ring({ position, snapDuration, fogColor, onPositionChange }: { position: number; snapDuration: number; fogColor: string; onPositionChange: (position: number) => void }) {
+function Ring({ active, position, snapDuration, fogColor, maxAnisotropy, useMobileTextures, onPositionChange, onDragChange }: { active: boolean; position: number; snapDuration: number; fogColor: string; maxAnisotropy: number; useMobileTextures: boolean; onPositionChange: (position: number) => void; onDragChange?: (dragging: boolean) => void }) {
   const outerRef = useRef<THREE.Group>(null);
   const ringRef = useRef<THREE.Group>(null);
   const currentRotation = useRef(-position * CARD_ANGLE);
+  const dragTargetRotation = useRef(currentRotation.current);
   const dragStartX = useRef(0);
   const dragStartRotation = useRef(0);
   const dragging = useRef(false);
-  const pressedScale = useRef(1);
   const animation = useRef<SnapAnimation>({ active: false, from: 0, to: 0, elapsed: 0, duration: snapDuration });
   const geometry = useMemo(createCurvedPanelGeometry, []);
-  const { camera, size, scene } = useThree();
+  const { camera, gl, invalidate, size, scene } = useThree();
 
   const startSnap = (target: number, duration = snapDuration) => {
     animation.current = {
@@ -124,14 +158,18 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
       elapsed: 0,
       duration,
     };
+    invalidate();
   };
 
   useEffect(() => {
-    startSnap(getClosestRotationTarget(currentRotation.current, -position * CARD_ANGLE));
-  }, [position, snapDuration]);
+    const duration = size.width <= 640
+      ? Math.max(snapDuration, MOBILE_MIN_SNAP_DURATION_SECONDS)
+      : snapDuration;
+    startSnap(getClosestRotationTarget(currentRotation.current, -position * CARD_ANGLE), duration);
+  }, [position, size.width, snapDuration]);
 
   useEffect(() => {
-    scene.fog = new THREE.Fog(fogColor, 10, 39);
+    scene.fog = new THREE.Fog(fogColor, 13, 42);
     return () => {
       scene.fog = null;
     };
@@ -141,81 +179,135 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
     geometry.dispose();
   }, [geometry]);
 
-  useFrame((state, delta) => {
+  useEffect(() => {
+    const canvas = gl.domElement;
+    const mobile = size.width <= 640;
+    const dragDistance = mobile
+      ? MOBILE_DRAG_ROTATION_DISTANCE_PX
+      : DESKTOP_DRAG_ROTATION_DISTANCE_PX;
+    const dragThreshold = mobile ? MOBILE_DRAG_THRESHOLD_PX : DESKTOP_DRAG_THRESHOLD_PX;
+    const returnDuration = mobile
+      ? MOBILE_DRAG_RETURN_DURATION_SECONDS
+      : DESKTOP_DRAG_RETURN_DURATION_SECONDS;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+      dragging.current = true;
+      animation.current.active = false;
+      dragStartX.current = event.clientX;
+      dragStartRotation.current = currentRotation.current;
+      dragTargetRotation.current = currentRotation.current;
+      onDragChange?.(true);
+      if (event.pointerType === "mouse") canvas.setPointerCapture(event.pointerId);
+      invalidate();
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      if (!dragging.current) return;
+      if (event.pointerType === "mouse") event.stopPropagation();
+      const offset = event.clientX - dragStartX.current;
+      const dragAngle = rubberBandAngle(
+        (offset / dragDistance) * MAX_DRAG_ANGLE,
+        MAX_DRAG_ANGLE,
+        MAX_DRAG_ANGLE * DRAG_RUBBER_BAND_EXTRA,
+      );
+      dragTargetRotation.current = dragStartRotation.current + dragAngle;
+      invalidate();
+    };
+
+    const finishPointer = (event: PointerEvent, cancelled: boolean) => {
+      if (!dragging.current) return;
+      const offset = event.clientX - dragStartX.current;
+      const targetPosition = !cancelled && Math.abs(offset) >= dragThreshold
+        ? position + (offset < 0 ? 1 : -1)
+        : position;
+      dragging.current = false;
+      onDragChange?.(false);
+      if (targetPosition === position) {
+        startSnap(
+          getClosestRotationTarget(currentRotation.current, -position * CARD_ANGLE),
+          returnDuration,
+        );
+      } else {
+        onPositionChange(targetPosition);
+      }
+      if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+    };
+
+    const handlePointerUp = (event: PointerEvent) => finishPointer(event, false);
+    const handlePointerCancel = (event: PointerEvent) => finishPointer(event, true);
+
+    canvas.addEventListener("pointerdown", handlePointerDown);
+    canvas.addEventListener("pointermove", handlePointerMove);
+    canvas.addEventListener("pointerup", handlePointerUp);
+    canvas.addEventListener("pointercancel", handlePointerCancel);
+    return () => {
+      canvas.removeEventListener("pointerdown", handlePointerDown);
+      canvas.removeEventListener("pointermove", handlePointerMove);
+      canvas.removeEventListener("pointerup", handlePointerUp);
+      canvas.removeEventListener("pointercancel", handlePointerCancel);
+    };
+  }, [gl, invalidate, onPositionChange, onDragChange, position, size.width, snapDuration]);
+
+  useFrame((_, delta) => {
     const frameDelta = Math.min(delta, MAX_FRAME_DELTA_SECONDS);
     const mobile = size.width <= 640;
+    const dragFollowDamping = mobile
+      ? MOBILE_DRAG_FOLLOW_DAMPING
+      : DESKTOP_DRAG_FOLLOW_DAMPING;
     const tablet = size.width <= 900;
-    const cameraOffset = mobile ? MOBILE_CAMERA_OFFSET : tablet ? TABLET_CAMERA_OFFSET : DESKTOP_CAMERA_OFFSET;
-    const cameraTarget = RADIUS + cameraOffset / CARD_VISUAL_SCALE;
-    camera.position.z = THREE.MathUtils.damp(camera.position.z, cameraTarget, 5, frameDelta);
+    const viewportScale = mobile ? 1 : tablet ? TABLET_RING_SCALE : DESKTOP_RING_SCALE;
+    const viewportAspect = size.width / size.height;
+    const verticalFov = THREE.MathUtils.degToRad(CAMERA_FOV_DEGREES);
+    const halfViewFactor = 2 * Math.tan(verticalFov / 2);
+    const fitPadding = mobile
+      ? MOBILE_CAMERA_FIT_PADDING
+      : tablet
+        ? TABLET_CAMERA_FIT_PADDING
+        : DESKTOP_CAMERA_FIT_PADDING;
+    const horizontalFit = PANEL_WIDTH / (halfViewFactor * viewportAspect) * fitPadding;
+    const verticalFit = PANEL_HEIGHT / halfViewFactor * fitPadding;
+    camera.position.z = (RADIUS + Math.max(horizontalFit, verticalFit)) * viewportScale;
     if (scene.fog instanceof THREE.Fog) {
-      scene.fog.near = mobile ? 34 : tablet ? 18 : 10;
-      scene.fog.far = mobile ? 72 : tablet ? 52 : 39;
+      scene.fog.near = mobile ? 34 : tablet ? 20 : 13;
+      scene.fog.far = mobile ? 72 : tablet ? 54 : 42;
     }
 
     if (outerRef.current) {
-      const targetX = 0;
-      const targetY = mobile ? 1.25 : tablet ? -0.65 : -1.6;
-      const tiltX = mobile ? MOBILE_TILT_X : DESKTOP_TILT_X;
-      const motionX = Math.max(-1, Math.min(1, state.pointer.x + deviceTilt.x));
-      const motionY = Math.max(-1, Math.min(1, state.pointer.y + deviceTilt.y));
+      const targetX = mobile || tablet ? 0 : 0.95;
+      const targetY = mobile ? 1.25 : tablet ? -0.65 : -4.5;
       outerRef.current.position.x = THREE.MathUtils.damp(outerRef.current.position.x, targetX, 3, frameDelta);
       outerRef.current.position.y = THREE.MathUtils.damp(outerRef.current.position.y, targetY, 3, frameDelta);
-      outerRef.current.rotation.x = THREE.MathUtils.damp(outerRef.current.rotation.x, tiltX + motionY * -0.04, 2.5, frameDelta);
-      outerRef.current.rotation.z = THREE.MathUtils.damp(outerRef.current.rotation.z, 0.11 + motionX * -0.025, 2.5, frameDelta);
+      outerRef.current.scale.setScalar(viewportScale);
+      if (!dragging.current) {
+        const tiltX = mobile ? MOBILE_TILT_X : DESKTOP_TILT_X;
+        outerRef.current.rotation.x = THREE.MathUtils.damp(outerRef.current.rotation.x, tiltX, 2.5, frameDelta);
+        outerRef.current.rotation.z = THREE.MathUtils.damp(outerRef.current.rotation.z, 0.11, 2.5, frameDelta);
+      }
     }
 
-    pressedScale.current = THREE.MathUtils.damp(pressedScale.current, dragging.current ? 0.94 : 1, 10, frameDelta);
-    if (outerRef.current) outerRef.current.scale.setScalar(pressedScale.current);
-
-    if (!dragging.current && animation.current.active) {
+    if (dragging.current) {
+      currentRotation.current = THREE.MathUtils.damp(
+        currentRotation.current,
+        dragTargetRotation.current,
+        dragFollowDamping,
+        frameDelta,
+      );
+    } else if (animation.current.active) {
       animation.current.elapsed += frameDelta;
       const progress = Math.min(1, animation.current.elapsed / animation.current.duration);
-      const eased = (1 - Math.cos(Math.PI * progress)) / 2;
+      const eased = easeInOutSine(progress);
       currentRotation.current = THREE.MathUtils.lerp(animation.current.from, animation.current.to, eased);
       if (progress === 1) {
         currentRotation.current = animation.current.to;
         animation.current.active = false;
       }
-    } else if (!dragging.current) {
+    } else if (active) {
       currentRotation.current -= IDLE_DRIFT_SPEED * frameDelta;
     }
 
     if (ringRef.current) ringRef.current.rotation.y = currentRotation.current;
   });
-
-  const handlePointerDown = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation();
-    dragging.current = true;
-    animation.current.active = false;
-    dragStartX.current = event.clientX;
-    dragStartRotation.current = currentRotation.current;
-    const target = event.target as EventTarget & { setPointerCapture?: (pointerId: number) => void };
-    target?.setPointerCapture?.(event.pointerId);
-  };
-
-  const handlePointerMove = (event: ThreeEvent<PointerEvent>) => {
-    if (!dragging.current) return;
-    const offset = event.clientX - dragStartX.current;
-    const resistedAngle = Math.tanh(offset / 180) * MAX_DRAG_ANGLE;
-    currentRotation.current = dragStartRotation.current + resistedAngle;
-  };
-
-  const handlePointerUp = (event: ThreeEvent<PointerEvent>) => {
-    if (!dragging.current) return;
-    const offset = event.clientX - dragStartX.current;
-    const targetPosition = Math.abs(offset) >= DRAG_THRESHOLD_PX
-      ? position + (offset < 0 ? 1 : -1)
-      : position;
-    dragging.current = false;
-    onPositionChange(targetPosition);
-    startSnap(
-      getClosestRotationTarget(currentRotation.current, -targetPosition * CARD_ANGLE),
-      DRAG_SNAP_DURATION_SECONDS,
-    );
-    const target = event.target as EventTarget & { releasePointerCapture?: (pointerId: number) => void };
-    target?.releasePointerCapture?.(event.pointerId);
-  };
 
   return (
     <group ref={outerRef}>
@@ -224,10 +316,8 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
           <group key={`${work.id}-${index}`} rotation-y={index * CARD_ANGLE}>
             <Panel
               geometry={geometry}
-              poster={work.poster}
-              onPointerDown={handlePointerDown}
-              onPointerMove={handlePointerMove}
-              onPointerUp={handlePointerUp}
+              poster={useMobileTextures ? work.posterMobile : work.poster}
+              maxAnisotropy={maxAnisotropy}
             />
           </group>
         ))}
@@ -236,28 +326,20 @@ function Ring({ position, snapDuration, fogColor, onPositionChange }: { position
   );
 }
 
-function Panel({ geometry, poster, onPointerDown, onPointerMove, onPointerUp }: {
+function Panel({ geometry, poster, maxAnisotropy }: {
   geometry: THREE.BufferGeometry;
   poster: string;
-  onPointerDown: (event: ThreeEvent<PointerEvent>) => void;
-  onPointerMove: (event: ThreeEvent<PointerEvent>) => void;
-  onPointerUp: (event: ThreeEvent<PointerEvent>) => void;
+  maxAnisotropy: number;
 }) {
   const texture = useTexture(poster);
   useMemo(() => {
     texture.colorSpace = THREE.SRGBColorSpace;
-    texture.anisotropy = 8;
+    texture.anisotropy = maxAnisotropy;
     texture.needsUpdate = true;
-  }, [texture]);
+  }, [maxAnisotropy, texture]);
 
   return (
-    <mesh
-      geometry={geometry}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onPointerCancel={onPointerUp}
-    >
+    <mesh geometry={geometry}>
       <meshBasicMaterial map={texture} side={THREE.DoubleSide} toneMapped={false} fog />
     </mesh>
   );

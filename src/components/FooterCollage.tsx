@@ -6,7 +6,6 @@ import { WORKS } from "../data/works";
 const MAX_DPR = 1.25;
 const POINTER_EASING = 0.08;
 const SETTLE_THRESHOLD = 0.001;
-const CARD_BLUR = "blur(2.5px)";
 
 const CARD_LAYOUT = [
   { x: 0.01, y: 0.18, rotation: -0.13, depth: 0.55 },
@@ -25,10 +24,11 @@ export default function FooterCollage() {
     const context = canvas?.getContext("2d");
     if (!canvas || !footer || !context) return;
 
+    const useMobilePosters = window.matchMedia("(pointer: coarse), (hover: none)").matches;
     const images = WORKS.map((work) => {
       const image = new Image();
       image.decoding = "async";
-      image.src = work.poster;
+      image.src = useMobilePosters ? work.posterMobile : work.poster;
       return image;
     });
     let width = 0;
@@ -69,9 +69,7 @@ export default function FooterCollage() {
         context.roundRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 4);
         context.clip();
         context.globalAlpha = compact ? 0.14 : 0.19;
-        context.filter = CARD_BLUR;
         drawCover(image, cardWidth, cardHeight);
-        context.filter = "none";
         context.fillStyle = "rgba(5, 5, 5, 0.28)";
         context.fillRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight);
         context.restore();

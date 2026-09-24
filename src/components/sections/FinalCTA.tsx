@@ -25,8 +25,8 @@ export default function FinalCTA() {
           <motion.div
           initial={{ opacity: 0, scale: 0.92, x: 40 }}
           whileInView={{ opacity: 1, scale: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1.1, delay: 0.25 }}
+          viewport={{ once: true, amount: 0.1 }}
+          transition={{ duration: 0.7, delay: 0 }}
           className="model-stage model-stage-crt hidden lg:block absolute right-[-2%] top-[48%] -translate-y-1/2 w-[54%] h-[820px] pointer-events-none z-10 [&_canvas]:pointer-events-none"
         >
           <CRTGLB className="w-full h-full" />
@@ -46,8 +46,8 @@ export default function FinalCTA() {
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="contact-title-glow whitespace-nowrap text-[46px] sm:text-[68px] md:text-[92px] lg:text-[110px] leading-[0.95] md:leading-[0.9] uppercase text-[#8B0A1F] font-stencil font-black"
           >
             {t.title1}
@@ -58,8 +58,8 @@ export default function FinalCTA() {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.3 }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
             className="mt-6 md:mt-8 font-mono text-[12px] md:text-[14px] tracking-[0.05em] md:tracking-[0.1em] text-[#C0BDB3]/80 max-w-xl uppercase leading-[1.6] md:leading-[1.8]"
           >
             <span className="text-[#8B0A1F]">//</span> {t.sub}
@@ -68,8 +68,8 @@ export default function FinalCTA() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.5 }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 0.5, delay: 0.25 }}
             className="contact-actions mt-8 md:mt-10 flex flex-wrap gap-3 w-full relative z-20"
           >
             <Btn href={SOCIAL_LINKS.telegramContact} label="Telegram">

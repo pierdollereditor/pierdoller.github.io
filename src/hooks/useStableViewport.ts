@@ -1,25 +1,28 @@
 import { useEffect } from "react";
 
+const MOBILE_VIEWPORT_QUERY = "(pointer: coarse), (hover: none)";
+const ORIENTATION_UPDATE_DELAY_MS = 300;
+
 export function useStableViewport() {
   useEffect(() => {
-    let viewportWidth = window.innerWidth;
+    if (!window.matchMedia(MOBILE_VIEWPORT_QUERY).matches) return;
+
+    let orientationTimer = 0;
 
     const updateHeight = () => {
       document.documentElement.style.setProperty("--app-height", `${window.innerHeight}px`);
     };
-
-    const handleResize = () => {
-      if (window.innerWidth === viewportWidth) return;
-      viewportWidth = window.innerWidth;
-      updateHeight();
+    const handleOrientationChange = () => {
+      window.clearTimeout(orientationTimer);
+      orientationTimer = window.setTimeout(updateHeight, ORIENTATION_UPDATE_DELAY_MS);
     };
 
     updateHeight();
-    window.addEventListener("resize", handleResize, { passive: true });
-    window.addEventListener("orientationchange", updateHeight);
+    window.addEventListener("orientationchange", handleOrientationChange);
     return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("orientationchange", updateHeight);
+      window.clearTimeout(orientationTimer);
+      window.removeEventListener("orientationchange", handleOrientationChange);
+      document.documentElement.style.removeProperty("--app-height");
     };
   }, []);
 }

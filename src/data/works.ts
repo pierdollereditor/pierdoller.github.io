@@ -8,6 +8,7 @@ export type Work = {
   year: number;
   duration: string;
   poster: string;
+  posterMobile: string;
   link?: string;
   accent: string;
   backdrop: string;
@@ -29,6 +30,7 @@ export const WORKS: Work[] = [
     year: 2026,
     duration: "00:22",
     poster: "/images/apple.avif",
+    posterMobile: "/images/apple-mobile.avif",
     link: "https://youtu.be/oWnPQs2Sxrg",
     accent: "#C7D5E7",
     backdrop: "#17202C",
@@ -41,6 +43,7 @@ export const WORKS: Work[] = [
     year: 2026,
     duration: "00:11",
     poster: "/images/spec-ops.avif",
+    posterMobile: "/images/spec-ops-mobile.avif",
     link: "https://youtu.be/ScFonzMbJmM",
     accent: "#B06A45",
     backdrop: "#28150F",
@@ -53,6 +56,7 @@ export const WORKS: Work[] = [
     year: 2026,
     duration: "01:13",
     poster: "/images/vox-orcas.avif",
+    posterMobile: "/images/vox-orcas-mobile.avif",
     link: "https://youtube.com/shorts/O3tjabKq_ao",
     accent: "#2FAEDB",
     backdrop: "#08283A",
@@ -65,6 +69,7 @@ export const WORKS: Work[] = [
     year: 2026,
     duration: "00:31",
     poster: "/images/last-ring.avif",
+    posterMobile: "/images/last-ring-mobile.avif",
     link: "https://youtu.be/tFkY4MPuwHg",
     accent: "#B99A42",
     backdrop: "#261D09",
@@ -77,6 +82,7 @@ export const WORKS: Work[] = [
     year: 2026,
     duration: "00:30",
     poster: "/images/gangland.avif",
+    posterMobile: "/images/gangland-mobile.avif",
     link: "https://youtu.be/0KrHLNThq-4",
     accent: "#B77A27",
     backdrop: "#241408",

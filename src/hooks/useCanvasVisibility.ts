@@ -16,20 +16,21 @@ export function useCanvasVisibility(
   rootMargin = "160px",
 ) {
   const [isActive, setIsActive] = useState(false);
+  const [isInView, setIsInView] = useState(false);
 
   useEffect(() => {
     const element = ref.current;
     if (!element) return;
 
     let inView = false;
-    let tabVisible =
-      typeof document === "undefined" ? true : document.visibilityState !== "hidden";
+    let tabVisible = document.visibilityState !== "hidden";
 
     const update = () => setIsActive(inView && tabVisible);
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         inView = entry.isIntersecting;
+        setIsInView(inView);
         update();
       },
       { rootMargin },
@@ -48,7 +49,7 @@ export function useCanvasVisibility(
     };
   }, [ref, rootMargin]);
 
-  return { isActive };
+  return { isActive, isInView };
 }
 
 export const MODEL_CANVAS_PRELOAD_MARGIN = "1600px";

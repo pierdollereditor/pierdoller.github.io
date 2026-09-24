@@ -59,14 +59,19 @@ const MENU_CONTENT: Record<MenuKey, Array<{ title: string; actions: Array<{ labe
   ],
 };
 
-export default function Header() {
+export default function Header({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
   const [activeMenu, setActiveMenu] = useState<MenuKey | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const menuOpen = activeMenu !== null || mobileNavOpen;
 
   useEffect(() => {
-    document.body.classList.toggle("menu-open", activeMenu !== null || mobileNavOpen);
+    document.body.classList.toggle("menu-open", menuOpen);
     return () => document.body.classList.remove("menu-open");
-  }, [activeMenu, mobileNavOpen]);
+  }, [menuOpen]);
+
+  useEffect(() => {
+    onOpenChange(menuOpen);
+  }, [menuOpen, onOpenChange]);
 
   return (
     <header className={`site-header absolute left-0 right-0 top-0 z-50 ${activeMenu || mobileNavOpen ? "is-open" : ""} ${mobileNavOpen ? "is-mobile-nav-open" : ""}`} onMouseLeave={() => setActiveMenu(null)}>
@@ -140,10 +145,9 @@ export default function Header() {
       <AnimatePresence>
         {activeMenu && (
           <motion.div
-            key={activeMenu}
-            initial={{ height: 0 }}
-            animate={{ height: "calc(clamp(360px, 31vw, 470px) + var(--site-header-height))" }}
-            exit={{ height: 0 }}
+            initial={{ clipPath: "inset(0 0 100% 0)" }}
+            animate={{ clipPath: "inset(0 0 0% 0)" }}
+            exit={{ clipPath: "inset(0 0 100% 0)" }}
             transition={{ duration: 0.52, ease: [0.76, 0, 0.24, 1] }}
             className="header-mega-panel absolute left-0 right-0 top-0 overflow-hidden border-b border-[#C0BDB3]/15"
           >

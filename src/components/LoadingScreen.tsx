@@ -1,27 +1,18 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { CRITICAL_MODELS, ModelAssetPreloader, useAssetLoader } from "../hooks/useAssetLoader";
+import { useEffect, useRef, useState } from "react";
+import { useAssetLoader } from "../hooks/useAssetLoader";
 
 const COMPLETE_HOLD_MS = 260;
 const EXIT_DURATION_MS = 900;
 const MIN_VISIBLE_MS = 900; // не мигать, если всё в кэше
 
 export default function LoadingScreen() {
-  const [canPreloadModels, setCanPreloadModels] = useState(false);
-  const [loadedModels, setLoadedModels] = useState(0);
-  const { progress, isReady } = useAssetLoader(loadedModels);
+  const { progress, isReady } = useAssetLoader();
   const [displayed, setDisplayed] = useState(0);
   const [isLeaving, setIsLeaving] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const mountedAt = useRef(performance.now());
-  const modelToLoad = CRITICAL_MODELS[loadedModels];
-  const handleModelReady = useCallback(() => {
-    setLoadedModels((current) => Math.min(current + 1, CRITICAL_MODELS.length));
-  }, []);
-
-  useEffect(() => setCanPreloadModels(true), []);
-
   // Замок скролла, пока идёт загрузка
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -67,13 +58,7 @@ export default function LoadingScreen() {
 
   const shown = Math.round(displayed);
   return (
-    <>
-      {canPreloadModels && modelToLoad && (
-        <Suspense fallback={null}>
-          <ModelAssetPreloader key={modelToLoad} src={modelToLoad} onReady={handleModelReady} />
-        </Suspense>
-      )}
-      <div className={`loading-screen ${isLeaving ? "is-leaving" : ""}`}>
+    <div className={`loading-screen ${isLeaving ? "is-leaving" : ""}`}>
         <div
           className="loading-screen-main"
           role="progressbar"
@@ -87,6 +72,5 @@ export default function LoadingScreen() {
           <div className="loading-screen-track"><i style={{ width: `${displayed}%` }} /></div>
         </div>
       </div>
-    </>
   );
 }
