@@ -115,7 +115,7 @@ export default function ProjectRing({ active, position, snapDuration, fogColor, 
     <div ref={containerRef} className="ape-ring-canvas" aria-hidden="true">
       {shouldRender && (
       <Canvas
-        camera={{ position: [0, 0, 18], fov: CAMERA_FOV_DEGREES, near: 0.1, far: 100 }}
+        camera={{ position: [0, 1.6, 18], fov: CAMERA_FOV_DEGREES, near: 0.1, far: 100 }}
         dpr={[1, maxPixelRatio]}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
         frameloop={active ? "always" : "never"}
@@ -267,6 +267,8 @@ function Ring({ active, position, snapDuration, fogColor, maxAnisotropy, useMobi
         : DESKTOP_CAMERA_FIT_PADDING;
     const horizontalFit = PANEL_WIDTH / (halfViewFactor * viewportAspect) * fitPadding;
     const verticalFit = PANEL_HEIGHT / halfViewFactor * fitPadding;
+    const targetCameraY = mobile ? 0 : tablet ? 0.8 : 1.6;
+    camera.position.y = THREE.MathUtils.damp(camera.position.y, targetCameraY, 4, frameDelta);
     camera.position.z = (RADIUS + Math.max(horizontalFit, verticalFit)) * viewportScale;
     if (scene.fog instanceof THREE.Fog) {
       scene.fog.near = mobile ? 34 : tablet ? 20 : 13;
@@ -275,7 +277,7 @@ function Ring({ active, position, snapDuration, fogColor, maxAnisotropy, useMobi
 
     if (outerRef.current) {
       const targetX = mobile || tablet ? 0 : 0.95;
-      const targetY = mobile ? 1.25 : tablet ? -0.65 : -4.5;
+      const targetY = mobile ? 0.6 : tablet ? -1.8 : -6.8;
       outerRef.current.position.x = THREE.MathUtils.damp(outerRef.current.position.x, targetX, 3, frameDelta);
       outerRef.current.position.y = THREE.MathUtils.damp(outerRef.current.position.y, targetY, 3, frameDelta);
       outerRef.current.scale.setScalar(viewportScale);
