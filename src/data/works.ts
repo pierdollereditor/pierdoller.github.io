@@ -87,4 +87,17 @@ export const WORKS: Work[] = [
     accent: "#B77A27",
     backdrop: "#241408",
   },
+  {
+    id: "paleontology",
+    title: "Paleontology",
+    subtitle: "Documentary Series · YouTube",
+    category: "LONGFORM",
+    year: 2026,
+    duration: "01:17",
+    poster: "/images/paleontology.avif",
+    posterMobile: "/images/paleontology-mobile.avif",
+    link: "https://youtu.be/zX29pPatLkg",
+    accent: "#D5CAB9",
+    backdrop: "#1C1C1A",
+  },
 ];
