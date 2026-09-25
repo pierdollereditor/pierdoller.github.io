@@ -19,9 +19,7 @@ export function useAssetLoader() {
   const [loadedImages, setLoadedImages] = useState(0);
 
   useEffect(() => {
-    const criticalImages = window.matchMedia("(pointer: coarse), (hover: none)").matches
-      ? MOBILE_CRITICAL_IMAGES
-      : DESKTOP_CRITICAL_IMAGES;
+    const criticalImages = DESKTOP_CRITICAL_IMAGES;
     if (criticalImages.length === 0) {
       return;
     }

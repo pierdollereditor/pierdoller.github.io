@@ -98,7 +98,7 @@ export default function CRTGLB({ className = "" }: { className?: string }) {
       <Canvas
         camera={{ position: [0, 0, 6], fov: 45 }}
         gl={{ antialias: true, alpha: true, toneMapping: THREE.ACESFilmicToneMapping, powerPreference: "high-performance" }}
-        dpr={isConstrained ? [1, 1.5] : [1, 1.25]}
+        dpr={isLowPower ? [1, 1.25] : [1, 2]}
         frameloop="demand"
         onCreated={({ gl }) => { gl.toneMappingExposure = 1.12; }}
       >

@@ -24,9 +24,9 @@ const CAMERA_FOV_DEGREES = 50;
 const DESKTOP_CAMERA_FIT_PADDING = 0.86;
 const TABLET_CAMERA_FIT_PADDING = 1.05;
 const MOBILE_CAMERA_FIT_PADDING = 1.2;
-const DESKTOP_MAX_PIXEL_RATIO = 2;
-const CONSTRAINED_MAX_PIXEL_RATIO = 1.5;
-const LOW_POWER_MAX_PIXEL_RATIO = 1.2;
+const DESKTOP_MAX_PIXEL_RATIO = 2.5;
+const CONSTRAINED_MAX_PIXEL_RATIO = 2;
+const LOW_POWER_MAX_PIXEL_RATIO = 1.5;
 const DESKTOP_DRAG_RETURN_DURATION_SECONDS = 0.8;
 const MOBILE_DRAG_RETURN_DURATION_SECONDS = 0.6;
 const MOBILE_MIN_SNAP_DURATION_SECONDS = 0.85;
@@ -148,8 +148,7 @@ export default function ProjectRing({
             position={position}
             snapDuration={snapDuration}
             fogColor={fogColor}
-            maxAnisotropy={8}
-            useMobileTextures={isConstrained}
+            maxAnisotropy={16}
             onPositionChange={onPositionChange}
             onDragChange={onDragChange}
           />
@@ -160,7 +159,7 @@ export default function ProjectRing({
   );
 }
 
-function Ring({ active, position, snapDuration, fogColor, maxAnisotropy, useMobileTextures, onPositionChange, onDragChange }: { active: boolean; position: number; snapDuration: number; fogColor: string; maxAnisotropy: number; useMobileTextures: boolean; onPositionChange: (position: number) => void; onDragChange?: (dragging: boolean) => void }) {
+function Ring({ active, position, snapDuration, fogColor, maxAnisotropy, onPositionChange, onDragChange }: { active: boolean; position: number; snapDuration: number; fogColor: string; maxAnisotropy: number; onPositionChange: (position: number) => void; onDragChange?: (dragging: boolean) => void }) {
   const outerRef = useRef<THREE.Group>(null);
   const ringRef = useRef<THREE.Group>(null);
   const currentRotation = useRef(-position * CARD_ANGLE);
@@ -340,7 +339,7 @@ function Ring({ active, position, snapDuration, fogColor, maxAnisotropy, useMobi
           <group key={`${work.id}-${index}`} rotation-y={index * CARD_ANGLE}>
             <Panel
               geometry={geometry}
-              poster={useMobileTextures ? work.posterMobile : work.poster}
+              poster={work.poster}
               maxAnisotropy={maxAnisotropy}
             />
           </group>
