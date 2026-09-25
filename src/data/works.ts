@@ -100,4 +100,17 @@ export const WORKS: Work[] = [
     accent: "#D5CAB9",
     backdrop: "#1C1C1A",
   },
+  {
+    id: "hustle-cult",
+    title: "Hustle Cult",
+    subtitle: "Documentary Series · YouTube",
+    category: "LONGFORM",
+    year: 2026,
+    duration: "00:54",
+    poster: "/images/hustle.avif",
+    posterMobile: "/images/hustle-mobile.avif",
+    link: "https://youtu.be/DlX56p5YHVk",
+    accent: "#C0362C",
+    backdrop: "#1F1614",
+  },
 ];
