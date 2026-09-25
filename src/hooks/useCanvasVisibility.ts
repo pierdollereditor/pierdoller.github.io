@@ -1,0 +1,56 @@
+"use client";
+
+import { useEffect, useState, type RefObject } from "react";
+
+/**
+ * Observes whether a container is near the viewport.
+ * Returns a boolean used to switch a R3F Canvas between
+ * active and paused rendering.
+ *
+ * Also reacts to document.visibilityState so that background tabs
+ * do not keep spending GPU cycles.
+ *
+ */
+export function useCanvasVisibility(
+  ref: RefObject<HTMLElement | null>,
+  rootMargin = "160px",
+) {
+  const [isActive, setIsActive] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    let inView = false;
+    let tabVisible = document.visibilityState !== "hidden";
+
+    const update = () => setIsActive(inView && tabVisible);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        inView = entry.isIntersecting;
+        setIsInView(inView);
+        update();
+      },
+      { rootMargin },
+    );
+    observer.observe(element);
+
+    const onVisibility = () => {
+      tabVisible = document.visibilityState !== "hidden";
+      update();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [ref, rootMargin]);
+
+  return { isActive, isInView };
+}
+
+export const MODEL_CANVAS_PRELOAD_MARGIN = "1600px";
+export const MODEL_CANVAS_INTERACTION_MARGIN = "120px";
