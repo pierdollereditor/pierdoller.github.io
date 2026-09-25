@@ -4,6 +4,7 @@ import { Suspense, useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
+import AtmosphericHaze from "./AtmosphericHaze";
 import { WORKS } from "../../data/works";
 import { useCanvasVisibility } from "../../hooks/useCanvasVisibility";
 import { useConstrainedRendering, useLowPowerRendering } from "../../hooks/useConstrainedRendering";
@@ -20,8 +21,8 @@ const RADIUS = PANEL_WIDTH / PANEL_ARC;
 const PANEL_HEIGHT = PANEL_WIDTH / PANEL_ASPECT_RATIO;
 const PANEL_SEGMENTS = 64;
 const CAMERA_FOV_DEGREES = 50;
-const DESKTOP_CAMERA_FIT_PADDING = 0.82;
-const TABLET_CAMERA_FIT_PADDING = 1.12;
+const DESKTOP_CAMERA_FIT_PADDING = 0.86;
+const TABLET_CAMERA_FIT_PADDING = 1.05;
 const MOBILE_CAMERA_FIT_PADDING = 1.2;
 const DESKTOP_MAX_PIXEL_RATIO = 2;
 const CONSTRAINED_MAX_PIXEL_RATIO = 1.5;
@@ -38,9 +39,9 @@ const MOBILE_DRAG_FOLLOW_DAMPING = 24;
 const DRAG_RUBBER_BAND_EXTRA = 0.02;
 const MAX_DRAG_ANGLE = CARD_ANGLE / 3;
 const IDLE_DRIFT_SPEED = THREE.MathUtils.degToRad(2.2);
-const DESKTOP_TILT_X = THREE.MathUtils.degToRad(-14);
+const DESKTOP_TILT_X = THREE.MathUtils.degToRad(-13);
 const MOBILE_TILT_X = THREE.MathUtils.degToRad(-5);
-const DESKTOP_RING_SCALE = 1.66;
+const DESKTOP_RING_SCALE = 1.48;
 const TABLET_RING_SCALE = 1.1;
 const MAX_FRAME_DELTA_SECONDS = 1 / 30;
 
@@ -100,7 +101,23 @@ function createCurvedPanelGeometry() {
   return geometry;
 }
 
-export default function ProjectRing({ active, position, snapDuration, fogColor, onPositionChange, onDragChange }: { active: boolean; position: number; snapDuration: number; fogColor: string; onPositionChange: (position: number) => void; onDragChange?: (dragging: boolean) => void }) {
+export default function ProjectRing({
+  active,
+  position,
+  snapDuration,
+  fogColor,
+  accentColor,
+  onPositionChange,
+  onDragChange,
+}: {
+  active: boolean;
+  position: number;
+  snapDuration: number;
+  fogColor: string;
+  accentColor: string;
+  onPositionChange: (position: number) => void;
+  onDragChange?: (dragging: boolean) => void;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { isInView: shouldRender } = useCanvasVisibility(containerRef, "800px");
   const isConstrained = useConstrainedRendering();
@@ -115,12 +132,17 @@ export default function ProjectRing({ active, position, snapDuration, fogColor, 
     <div ref={containerRef} className="ape-ring-canvas" aria-hidden="true">
       {shouldRender && (
       <Canvas
-        camera={{ position: [0, 1.6, 18], fov: CAMERA_FOV_DEGREES, near: 0.1, far: 100 }}
+        camera={{ position: [0, 1.2, 18], fov: CAMERA_FOV_DEGREES, near: 0.1, far: 110 }}
         dpr={[1, maxPixelRatio]}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
         frameloop={active ? "always" : "never"}
       >
         <Suspense fallback={null}>
+          <AtmosphericHaze
+            fogColor={fogColor}
+            accentColor={accentColor}
+            isMobile={isConstrained}
+          />
           <Ring
             active={active}
             position={position}
@@ -169,7 +191,7 @@ function Ring({ active, position, snapDuration, fogColor, maxAnisotropy, useMobi
   }, [position, size.width, snapDuration]);
 
   useEffect(() => {
-    scene.fog = new THREE.Fog(fogColor, 13, 42);
+    scene.fog = new THREE.Fog(fogColor, 20, 78);
     return () => {
       scene.fog = null;
     };
@@ -267,24 +289,24 @@ function Ring({ active, position, snapDuration, fogColor, maxAnisotropy, useMobi
         : DESKTOP_CAMERA_FIT_PADDING;
     const horizontalFit = PANEL_WIDTH / (halfViewFactor * viewportAspect) * fitPadding;
     const verticalFit = PANEL_HEIGHT / halfViewFactor * fitPadding;
-    const targetCameraY = mobile ? 0 : tablet ? 0.8 : 1.6;
+    const targetCameraY = mobile ? 0 : tablet ? 0.7 : 1.35;
     camera.position.y = THREE.MathUtils.damp(camera.position.y, targetCameraY, 4, frameDelta);
     camera.position.z = (RADIUS + Math.max(horizontalFit, verticalFit)) * viewportScale;
     if (scene.fog instanceof THREE.Fog) {
-      scene.fog.near = mobile ? 34 : tablet ? 20 : 13;
-      scene.fog.far = mobile ? 72 : tablet ? 54 : 42;
+      scene.fog.near = mobile ? 28 : tablet ? 24 : 20;
+      scene.fog.far = mobile ? 78 : tablet ? 74 : 78;
     }
 
     if (outerRef.current) {
-      const targetX = mobile || tablet ? 0 : 0.95;
-      const targetY = mobile ? 0.6 : tablet ? -1.8 : -6.8;
+      const targetX = mobile || tablet ? 0 : 0.85;
+      const targetY = mobile ? 0.4 : tablet ? -1.7 : -5.4;
       outerRef.current.position.x = THREE.MathUtils.damp(outerRef.current.position.x, targetX, 3, frameDelta);
       outerRef.current.position.y = THREE.MathUtils.damp(outerRef.current.position.y, targetY, 3, frameDelta);
       outerRef.current.scale.setScalar(viewportScale);
       if (!dragging.current) {
         const tiltX = mobile ? MOBILE_TILT_X : DESKTOP_TILT_X;
         outerRef.current.rotation.x = THREE.MathUtils.damp(outerRef.current.rotation.x, tiltX, 2.5, frameDelta);
-        outerRef.current.rotation.z = THREE.MathUtils.damp(outerRef.current.rotation.z, 0.11, 2.5, frameDelta);
+        outerRef.current.rotation.z = THREE.MathUtils.damp(outerRef.current.rotation.z, 0.08, 2.5, frameDelta);
       }
     }
 
@@ -334,8 +356,12 @@ function Panel({ geometry, poster, maxAnisotropy }: {
   maxAnisotropy: number;
 }) {
   const texture = useTexture(poster);
-  useMemo(() => {
+
+  useEffect(() => {
     texture.colorSpace = THREE.SRGBColorSpace;
+    texture.generateMipmaps = true;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+    texture.magFilter = THREE.LinearFilter;
     texture.anisotropy = maxAnisotropy;
     texture.needsUpdate = true;
   }, [maxAnisotropy, texture]);

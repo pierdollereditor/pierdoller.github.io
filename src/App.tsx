@@ -6,7 +6,6 @@ import Header from "./components/Header";
 import GrainOverlay from "./components/GrainOverlay";
 import CustomCursor from "./components/CustomCursor";
 import Hero from "./components/sections/Hero";
-import Manifesto from "./components/sections/Manifesto";
 import Intermission from "./components/sections/Intermission";
 import FinalCTA from "./components/sections/FinalCTA";
 import Footer from "./components/Footer";
@@ -22,7 +21,7 @@ export default function App() {
   useStableViewport();
 
   return (
-    <div className="bg-[#050505] text-[#C0BDB3] min-h-screen relative overflow-x-hidden">
+    <div className="bg-[#050505] text-[#C0BDB3] min-h-screen relative overflow-x-clip">
       <LoadingScreen />
       <GrainOverlay />
       <CustomCursor />
@@ -30,7 +29,6 @@ export default function App() {
 
       <main>
         <Hero />
-        <Manifesto />
         {FEATURES.resultsSection && <Intermission />}
         <FinalCTA />
       </main>

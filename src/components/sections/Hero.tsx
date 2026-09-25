@@ -104,7 +104,17 @@ export default function Hero() {
       </AnimatePresence>
       <LensingField color={activeWork.accent} />
 
-      <ProjectRing active={isHeroActive} position={position} snapDuration={snapDuration} fogColor={activeWork.backdrop} onPositionChange={handleRingPositionChange} onDragChange={setIsDragging} />
+      <div className="hero-mist-floor" aria-hidden="true" />
+
+      <ProjectRing
+        active={isHeroActive}
+        position={position}
+        snapDuration={snapDuration}
+        fogColor={activeWork.backdrop}
+        accentColor={activeWork.accent}
+        onPositionChange={handleRingPositionChange}
+        onDragChange={setIsDragging}
+      />
 
       <AnimatePresence mode="wait">
         <motion.div
