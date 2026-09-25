@@ -144,7 +144,7 @@ export default function Hero() {
           >
             <img
               src={work.poster}
-              srcSet={`${work.posterMobile} 800w, ${work.poster} 1280w`}
+              srcSet={`${work.posterMobile} 800w, ${work.poster} 2560w`}
               sizes="(max-width: 640px) 38px, 46px"
               alt=""
               draggable={false}

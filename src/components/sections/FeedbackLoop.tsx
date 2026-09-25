@@ -3,12 +3,12 @@
 import { useEffect, useRef } from "react";
 
 const FEEDBACK = [
-  { id: "01", message: "Great work", image: "/images/feedback/01.avif" },
-  { id: "02", message: "Client feedback", image: "/images/feedback/02.avif" },
-  { id: "03", message: "Result approved", image: "/images/feedback/03.avif" },
-  { id: "04", message: "Final cut", image: "/images/feedback/04.avif" },
-  { id: "05", message: "High retention", image: "/images/feedback/05.avif" },
-  { id: "06", message: "Delivered", image: "/images/feedback/06.avif" },
+  { id: "01", message: "Great work", image: "/images/feedback/01.webp" },
+  { id: "02", message: "Client feedback", image: "/images/feedback/02.webp" },
+  { id: "03", message: "Result approved", image: "/images/feedback/03.webp" },
+  { id: "04", message: "Final cut", image: "/images/feedback/04.webp" },
+  { id: "05", message: "High retention", image: "/images/feedback/05.webp" },
+  { id: "06", message: "Delivered", image: "/images/feedback/06.webp" },
 ];
 
 const LOOP_SPEED = 18;
